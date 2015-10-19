@@ -42,7 +42,7 @@
     Fitting Generalized Additive Models\\ for large data sets with Apache Spark \\[7pt]
     \large An exposé for a bachelor thesis
 }
-\date{24.10.2015}
+\date{31.10.2015}
 \author{Kai Thomas Brusch}
 
 
@@ -72,37 +72,53 @@
     \section{Introduction}
 
     \subsection{Context}
-    Regression analysis have become a corner stone of modern statistical analysis. Discovering the relationship between dependeant and independat variables offers great insight into the underlying mechanics and provides far reaching predictive capabilities. The general additive model (GAM) describes a modelling approach which explores the relationship between dependant and independant variables as the sum of smoothing functions. This modeling approach offers more flexiblity and power than the traditional generalized linear model and has been succesfuly established in academia and industry. However, the additional power of GAMs comes at the cost of additional computational effort, placing strict constraints on the model and data size. Modern literatur suggest two optimization to eliviate this constraint: parallelization of computation and numerical optimization.
+    Regression analysis have become a corner stone of modern statistical analysis. Discovering the relationship between dependeant and independat variables offers great insight into the underlying system and can provide far reaching predictive capabilities. Linear models describe the relationship explain the dependant variable as the sum of the independant variables and the linear interaction with a coefficent. The general additive model (GAM) describes a modelling approach which explores the relationship between dependant and independant variables as the sum of smoothing functions. This modeling approach offers more flexiblity and power than linear model and has been succesfuly established in academia and industry. However, the additional power of GAMs comes at the cost of additional computational effort, placing strict constraints on the model and data size. Modern literatur suggest two optimization to eliviate this constraint: parallelization and numerical optimization.
+    The optimizations have been implmented and used in high-level statiscial languanges like R and SPASS. While they are already allowing to model fit on more data I feel their implementation in a truly distributed enviroment could bring more power. Apache Spark offers a general purpose cluster computing engine. It's general and distributed nature offers the ideal enviroment to fit general additive models in a distributed enviroment.
 
-    Apache Spark offers a general purpose cluster computing engine. It's general and distributed nature offers the ideal enviroment to facilitate .
+    I would like use my bachelor thesis to futher my understanding of the statistical concepts outlined and apply them to a relevant application.
 
-    \subsection{General Linear Model}
-    I am fascinated by the language as it enables
+    \subsection{General Linear Models}
+    Linear models are statistical models in which a univariate response is modelled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables, measured with the response variable, and some unknown parameters, which must be estimated. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science, both in the analysis of designed experiments, and for other modeling tasks, such as polynomial regression.
 
-    \subsection{Generalized Linear Model}
+    \subsection{Generalized Linear Models}
+    Generalized linear models (GLMs) somewhat relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (for example, normal, Poisson, binomial, gamma etc.). Inference for GLMs is based on likelihood theory,
 
-    \subsection{Generalized Additive Model}
+    \subsection{Generalized Additive Models}
+    A Generalized Additive Model (GAM) is a GLM in which part of the linear pre- dictor is specified in terms of a sum of smooth functions of predictor variables. The exact parametric form of these functions is unknown, as is the degree of smoothness appropriate for each of them. To use GAMs in practice requires some extensions to GLM methods:
+    \begin{itemize}
+        \item The smooth functions must be represented somehow.
+        \item The degree of smoothness of the functions must be made controllable, so that models with varying degrees of smoothness can be explored.
+        \item Some means for estimating the most appropriate degree of smoothness from data is required, if the models are to be useful for more than purely exploratory work.
+    \end{itemize}
+￼￼￼￼￼
+
+    \subsection{Generalized Additive Models for large data sets}
+    \cite{McDonell2013Optimising}
 
     \subsection{Apache Spark}
-    Image Processing is a topic of high personal interest.
-    I particularly liked the elective course "Robot Vision" (Prof. Dr. Meisel).
-    Image Processing Algorithms have a natural tendency to be applicable in Parallel Computing (as many algorithms end up on high-performance GPUs).
-    Therefore, I think such a focus is adequate.
-    I am also focusing on Image Processing Algorithms because I want to express my interest on it.
-
-    \subsection{General approaches in Parallel computing}
-    Generally recognized approaches are:
+    Distributed computing is a special interest of mine. I've had the pleasure of setting up a SparkR cluster and have been following its development closely. Apache Spark advertises itself as a fast and general cluster computing engine for large-scale data processing. He a overview of it's key features:
     \begin{itemize}
-        \item Concurrent programming (threads \& locks)
-        \item Flat data Parallelism (\texttt{map/reduce})
-        \item GPU Parallelism (CUDA,OpenCL, mainly matrix/vector operations)
-        \item and in the Haskell world: \cite{Marlow2012Parallel}
+        \item fast, Apache Spark currently holds the world record in sorting 1 TB on data, beating the previus record help by Hadoop. Spark reaches this high speed by removing I/O to disc and maintaining all relevant in memory.
+        \item general, Aparche Spark offers a high level API called Resilient Data Set. RDDs are designed to facilitate a resiliend, distributed data set as a optimal level of interaction with data. Each of the key features of RDDs are outlined below:
         \begin{itemize}
-            \item Algorithm + Strategy = Parallelism, a task-based approach \cite{Trinder1998Algorithm}
-            \item The Par Monad, a dataflow approch, \cite{Marlow2011Monad}
-            \item Repa, a regular-array data-parallel approach, \cite{Keller2010Regular}
-            \item Accelerate, a GPU approach, \cite{McDonell2013Optimising}
-            \item Nested Data Parallel, a parametric nested-data-parallel approach, \cite{Chakravarty2007Data}
+            \item Resilient: Every RDD is evaluated lazy and constructed from it's lineage, point to different previous RDD.
+            \item Distributed: RDDs are partiioned accross many machines
+            \item Data set: RDDs are ment to think about in terms of matrixes, this should feel very natural for people familar with data.
+        \end{itemize}
+        \item cluster computing, Apache Spark is build to be executed in a cluster enviroment like Mesos or Yarn. The management and design of these systems are not subject of my bachelor thesis but are centainly worthy of one.
+        \item large scale data processing, the data managable by Apache Spark is limited by the amount of memory availble in a cluster. The advent of obiquis cluster computing and the ability to scale horizontaly
+    \end{itemize} The implementation of the outlined optimization in the previously described enviroment is explained in the next section.
+
+    \subsection{General additive models in Apache Spark}
+    A general
+    \begin{itemize}
+        \item QR Update
+        \item Parallel computation
+        \item Getting f, r and bla without X
+        \begin{itemize}
+            \item F
+            \item R
+            \item X
         \end{itemize}
     \end{itemize}
 
