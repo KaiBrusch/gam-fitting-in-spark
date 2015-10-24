@@ -6,6 +6,7 @@
 \newcommand{\note}[1]{{\tiny (#1)}}
 
 % Packages explained - Adding more functions to LATEX http://www.latex-tutorial.com/tutorials/beginners/lesson-3/
+\usepackage[utf8]{inputenc}
 \usepackage{booktabs}
 \usepackage{url}
 \usepackage{hyperref}
@@ -71,6 +72,8 @@
     Regression analysis have become a corner stone of modern statistical analysis. Discovering the relationship between dependeant and independat variables offers great insight into the underlying system and can provide far reaching predictive capabilities. Linear models describe the relationship explain the dependant variable as the sum of the independant variables and the linear interaction with a coefficent. The general additive model describes a modelling approach which explores the relationship between dependant and independant variables as the sum of smoothing functions. This modeling approach offers more flexiblity and power than linear model and has been succesfuly established in academia and industry. However, the additional power of GAMs comes at the cost of additional computational effort, placing strict constraints on the model and data size. Modern literatur suggest two optimization to eliviate this constraint: parallelization and numerical optimization.
     The optimizations have been implmented and used in high-level statiscial languanges like R and SPASS. While they are already allowing to model fit on more data I feel their implementation in a truly distributed enviroment could bring more power. Apache Spark offers a general purpose cluster computing engine. It's general and distributed nature offers the ideal enviroment to fit general additive models in a distributed enviroment.
 
+
+
     \subsection{General Linear Models}
     Linear models are statistical models in which a univariate response is modelled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables, measured with the response variable, and some unknown parameters, which must be estimated. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science, both in the analysis of designed experiments. \
 
@@ -80,23 +83,50 @@
 
     \begin{equation} \label{sumSquares} \mathbf{S} =  \sum_{i=1}^{n}(y\textsubscript{i} - x\textsubscript{i}\beta)^{2} \end{equation}
 
-    The common measure of \textbeta is the sum of squares defined in \ref{sumSquares}, Markov-Gaus have proven that the best possible \textbeta is the minimization of \ref{sumSquares}.
+    The common measure of \textbeta is the sum of squares defined in \ref{sumSquares}, Markov-Gaus have proven that the best possible unbiased estimator is \textbeta  the minimization of \ref{sumSquares}.
 
-    \begin{equation}  \label{linMatrixModel} y =  X \beta \end{equation}
+    \begin{equation}  \label{linMatrixModel} y =  \mathbf{X} \beta \end{equation}
 
     We can rewrite \ref{linModel} in scalar form \ref{linMatrixModel}. The dependante variable vector \textit{y} is the linear combination of model matrix \textit{X} and the vector of unknown parameter \textbeta.
 
     \subsection{Generalized Linear Models}
-    Generalized linear models (GLMs) somewhat relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (for example, normal, Poisson, binomial, gamma etc.). Inference for GLMs is based on likelihood theory,
+    Generalized linear models (GLMs) somewhat relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (for example, normal, Poisson, binomial, gamma etc.).
+
+    \begin{equation} \label{glmMatrix} g(\mu\textsubscript{i}) = \mathbf{X} \beta \end{equation}
+
+    Equation \ref{glmMatrix} introduces formal notation for GLMs and illustrates the simmilarities to the genral linear model. It is important to recognize the smooth monotonic function \textit{g()}. The smooth monotonic function, also known as link function, is the key extension which enables to model members of the expotential family with a linear model.
 
     \subsection{Generalized Additive Models}
-    A Generalized Additive Model (GAM) is a GLM in which part of the linear pre- dictor is specified in terms of a sum of smooth functions of predictor variables. The exact parametric form of these functions is unknown, as is the degree of smoothness appropriate for each of them. To use GAMs in practice requires some extensions to GLM methods:
+    A Generalized Additive Model (GAM) extends the GLM in by specifing the linear prediction in terms of a sum of smooth functions of predictor variables. The exact parametric form of these functions is unknown, as is the degree of smoothness appropriate for each of them. To use GAMs in practice GLMs must be extende with the following mechanics:
     \begin{itemize}
         \item The smooth functions must be represented somehow.
         \item The degree of smoothness of the functions must be made controllable, so that models with varying degrees of smoothness can be explored.
         \item Some means for estimating the most appropriate degree of smoothness from data is required, if the models are to be useful for more than purely exploratory work.
     \end{itemize}
 ￼￼￼￼￼
+    With the outlined additions to GLMs we can now introduce more notation to get a better unterstanding of GAMs.
+
+    \begin{equation} \label{GAM} g(\mu\textsubscript{i}) = \mathbf{X} \textsubscript{i} \Theta + f\textsubscript{1}(x\textsubscript{1i}) + f\textsubscript{2}(x\textsubscript{2i}) + f\textsubscript{3}(x\textsubscript{3i}, x\textsubscript{4i}) ... \end{equation}
+
+    It is important to note that yi = E(Yi). Xi is a row of the model matrix with parametric component. O is the parameter vector and fJ are the smooth function of the covariates xk. Specifing Yi only interms of smooth functions allow for more flexible modelling. The smoothing function f is easiest understood in a simple univariate case illustrated bellow.
+
+    \begin{equation} \label{univariateSmooth} y\subscript{i} = f(x\subscript{i}) + \epsilon \subscript{i} \end{equation}
+
+    An essetial element of GAMs is selecting a base for the smooth function. To keep the within the theory already developed for linear models we require the smoothing function to be represented by a linear basis. Since the base function is a choice we can treat the base as known. For the sake of illustration we assume \ref{univariateSmooth} can be rewrite as the following equation if bi(x) is the ith basis function:
+
+    \begin{equation} \label{smoothBase} f(x) = \sum_{i=1}^{q} b\textsubscript{i} (x) \beta \textsubscript{i} \end{equation}
+
+    In \ref{smoothBase} we the treat the b to be completly known and the linearity of \ref{smoothBase} is given by \textbeta. To make this a bit more concrete we now assume our basis function to be a fourth order polynomial allowing us to rewrite \ref{smoothBase}
+
+    \begin{equation} \label{poly4th} f(x) = \beta \textsubscript{1} + x\beta \textsubscript{2} + x^2\beta \textsubscript{3} + x^3\beta \textsubscript{4} + x^4\beta \textsubscript{5}  \end{equation}
+
+    Which when applied to \label{univariateSmooth} yields the full model for a univariate GAM.
+
+    \begin{equation} \label{poly4thGAM}  y_i = \beta_1 + x_i\beta_2 + x_i^2\beta_3+ x_i^3\beta_4 + x_i^4\beta_5 + \epsilon_i \end{equation}
+
+    In \ref{poly4thGAM} we conclude the introcution of univariate smooth functions.  There are many other choices for basis function  The fourth order polynomial introcuded in \ref{poly4th} serves well in illustrating the dependant variable as the sum of smooth functions but there are more powerful classes of smoothing functions. Splines represent a more powerful basis functions. Splines include regression splines, cubic cyclic splines, psplin
+
+
 
     \subsection{Generalized Additive Models for large data sets}
     \cite{GAM}
