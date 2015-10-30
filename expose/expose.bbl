@@ -1,0 +1,31 @@
+\begin{thebibliography}{}
+
+\bibitem[Hall, 2009]{Breeze}
+Hall, D. (2009).
+\newblock Breeze.
+
+\bibitem[Strang, 2009]{strang09}
+Strang, G. (2009).
+\newblock {\em Linear Algebra and Its Applications}.
+\newblock Wellesley-Cambridge Press, Wellesley, MA.
+
+\bibitem[Wood, 2006]{gamBook}
+Wood, S. (2006).
+\newblock {\em Generalized Additive Models: An Introduction with R}.
+\newblock Chapman and Hall/CRC.
+
+\bibitem[Wood et~al., 2015]{bigdataGAM}
+Wood, S.~N., Goude, Y., and Shaw, S. (2015).
+\newblock Generalized additive models for large data sets.
+\newblock {\em Journal of the Royal Statistical Society: Series C (Applied
+  Statistics)}, 64(1):139--155.
+
+\bibitem[Zaharia et~al., 2010]{spark}
+Zaharia, M., Chowdhury, M., Franklin, M.~J., Shenker, S., and Stoica, I.
+  (2010).
+\newblock Spark: Cluster computing with working sets.
+\newblock In {\em Proceedings of the 2Nd USENIX Conference on Hot Topics in
+  Cloud Computing}, HotCloud'10, pages 10--10, Berkeley, CA, USA. USENIX
+  Association.
+
+\end{thebibliography}

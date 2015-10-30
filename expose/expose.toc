@@ -1,0 +1,25 @@
+\contentsline {paragraph}{Summary}{1}{section*.1}
+\contentsline {paragraph}{Contact}{1}{section*.2}
+\contentsline {paragraph}{Location}{1}{section*.3}
+\contentsline {paragraph}{Department}{1}{section*.4}
+\contentsline {paragraph}{Examiner}{1}{section*.5}
+\contentsline {paragraph}{Second examiner}{1}{section*.6}
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}
+\contentsline {subsection}{\numberline {1.1}Context}{3}{subsection.1.1}
+\contentsline {section}{\numberline {2}Content}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}General Linear Models}{3}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Generalized Linear Models}{4}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Generalized Additive Models}{4}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Smoothing parameter Estimation with generalized cross validation}{6}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.5}Generalized Additive Models for large data sets}{6}{subsection.2.5}
+\contentsline {subsection}{\numberline {2.6}Apache Spark}{7}{subsection.2.6}
+\contentsline {subsection}{\numberline {2.7}General additive models in Apache Spark}{7}{subsection.2.7}
+\contentsline {section}{\numberline {3}Guiding Questions}{8}{section.3}
+\contentsline {paragraph}{Can the distributed, numerically optimized, in-memory version of GAM fitting outperform previous benchmark implementation in model size, data size and fitting speed?}{8}{section*.8}
+\contentsline {paragraph}{}{8}{section*.9}
+\contentsline {subsection}{\numberline {3.1}What is novel in this approach?}{8}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}When is the thesis regarded as completed?}{8}{subsection.3.2}
+\contentsline {paragraph}{Additional tasks}{8}{section*.10}
+\contentsline {subsection}{\numberline {3.3}Which tasks are realistic to be accomplished within the scope of this thesis?}{8}{subsection.3.3}
+\contentsline {section}{\numberline {4}Time table}{8}{section.4}
+\contentsline {section}{\numberline {5}References}{9}{section.5}

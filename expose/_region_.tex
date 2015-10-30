@@ -1,0 +1,335 @@
+\message{ !name(expose.tex)}\documentclass{article}
+
+% Latex Tutorial beginners: http://www.latex-tutorial.com/tutorials/beginners/
+\newcommand{\comment}[1]{}
+
+\newcommand{\note}[1]{{\tiny (#1)}}
+
+% Packages explained - Adding more functions to LATEX http://www.latex-tutorial.com/tutorials/beginners/lesson-3/
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{textgreek}
+
+\usepackage[margin=1.3in]{geometry}
+
+% Erzeugen des PDF (ohne References):
+% Strg + Alt + 1 in Gedit
+
+% Erzeugen des PDF (mit References):
+% Strg + Alt + 1 in Gedit
+% $ bibtex expose
+% Zweimal: Strg + Alt + 1 in Gedit
+
+% fügt die Literatur auch zum Inhaltsverzeichnis hinzu (ist so nicht default)
+\usepackage[nottoc,notlot,notlof,numbib]{tocbibind}
+
+% Adding a bibliography http://www.latex-tutorial.com/tutorials/beginners/lesson-7/
+\bibliographystyle{apalike}
+
+
+% Nested numbered enumerations, eg. 1.1, 1.2: http://tex.stackexchange.com/questions/78842/nested-enumeration-numbering
+\renewcommand{\labelenumii}{\theenumii}
+\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
+
+
+\title{
+    Fitting Generalized Additive Models for\\ very large datasets with Apache Spark \\[7pt]
+    \large An exposé for a bachelor thesis
+}
+\date{31.10.2015}
+\author{Kai Thomas Brusch}
+
+
+\begin{document}
+
+\message{ !name(expose.tex) !offset(-3) }
+
+
+    \pagenumbering{arabic}
+
+    \maketitle
+
+    \paragraph{Summary}
+
+    This exposé describes content, goals and motivation of my bachelor thesis titled "Fitting General Additive Models for very large datasets with Apache Spark".
+
+    \paragraph{Contact} \texttt{kai.brusch@gmail.com}
+
+    \paragraph{Location} Hochschule für Angewandte Wissenschaften Hamburg
+    \paragraph{Department} Dept. Informatik
+    \paragraph{Examiner} Prof. Dr. Michael Köhler-Bußmeier
+    \paragraph{Second examiner} TBA
+
+    \newpage
+
+    \tableofcontents
+
+    \newpage
+
+    \section{Introduction}
+
+    \subsection{Context}
+    Regression analysis have become a corner stone of modern statistical analysis. Discovering the relationship between dependeant and independat variables offers great insight into the underlying system and can provide far reaching predictive capabilities. Linear models describe the relationship explain the dependant variable as the sum of the independant variables and the linear interaction with a coefficent. The general additive model describes a modelling approach which explores the relationship between dependant and independant variables as the sum of smoothing functions. This modeling approach offers more flexiblity and power than linear model and has been succesfuly established in academia and industry. However, the additional power of GAMs comes at the cost of additional computational effort, placing strict constraints on the model and data size. Modern literatur suggest two optimization to eliviate this constraint: parallelization and numerical optimization.
+    The optimizations have been implmented and used in high-level statiscial languanges like R and SPASS. While they are already allowing to model fit on more data I feel their implementation in a truly distributed enviroment could bring more power. Apache Spark offers a general purpose cluster computing engine. It's general and distributed nature offers the ideal enviroment to fit general additive models in a distributed enviroment.
+
+    \subsection{General Linear Models}
+    Linear models are statistical models in which a univariate response is modelled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables, measured with the response variable, and some unknown parameters, which must be estimated. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science, both in the analysis of designed experiments. \
+
+    \begin{equation}  \label{linModel} y\textsubscript{i} = \beta x\textsubscript{i} + \varepsilon\textsubscript{i} \end{equation}
+
+    The equation \ref{linModel} introduces formal notation on how to describe the dependant variable y as linear combination of x and the unknown parameter \textbeta plus an error term \textepsilon. We are seeking \textbeta to fit all data as closely as possible and introduce S as the squared sum which serves as a good proxy for goodness of fit.
+
+    \begin{equation} \label{sumSquares} \mathbf{S} =  \sum_{i=1}^{n}(y\textsubscript{i} - x\textsubscript{i}\beta)^{2} \end{equation}
+
+    The common measure of \textbeta is the sum of squares defined in \ref{sumSquares}, Markov-Gaus have proven that the best possible \textbeta is the minimization of \ref{sumSquares}.
+
+    \begin{equation}  \label{linMatrixModel} y =  \mathbf{X} \beta \end{equation}
+
+    We can rewrite \ref{linModel} in scalar form \ref{linMatrixModel}. The dependante variable vector \textit{y} is the linear combination of model matrix \textit{X} and the vector of unknown parameter \textbeta.
+
+    \subsection{Generalized Linear Models}
+    Generalized linear models (GLMs) somewhat relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (for example, normal, Poisson, binomial, gamma etc.).
+
+    \begin{equation} \label{glmMatrix} g(\mu\textsubscript{i}) = \mathbf{X} \beta \end{equation}
+
+    Equation \ref{glmMatrix} introduces formal notation for GLMs and illustrates the simmilarities to the genral linear model. It is important to recognize the smooth monotonic function \textit{g()}. The smooth monotonic function, also known as link function, is the key extension which enables to model members of the expotential family with a linear model.
+
+    \subsection{Generalized Additive Models}
+    A Generalized Additive Model (GAM) extends the GLM in by specifing the linear prediction in terms of a sum of smooth functions of predictor variables. The exact parametric form of these functions is unknown, as is the degree of smoothness appropriate for each of them. To use GAMs in practice GLMs must be extende with the following mechanics:
+    \begin{itemize}
+        \item The smooth functions must be represented somehow.
+        \item The degree of smoothness of the functions must be made controllable, so that models with varying degrees of smoothness can be explored.
+        \item Some means for estimating the most appropriate degree of smoothness from data is required, if the models are to be useful for more than purely exploratory work.
+    \end{itemize}
+￼￼￼￼￼
+    With the outlined additions to GLMs we can now introduce more notation to get a better unterstanding of GAMs.
+
+    \begin{equation} \label{GAM} g(\mu\textsubscript{i}) = \mathbf{X} \textsubscript{i} \Theta + f\textsubscript{1}(x\textsubscript{1i}) + f\textsubscript{2}(x\textsubscript{2i}) + f\textsubscript{3}(x\textsubscript{3i}, x\textsubscript{4i}) ... \end{equation}
+
+    \begin{equation} \label{GAM2} g(\mu\textsubscript{i}) = \mathbf{X} \textsubscript{i} \Theta + f\textsubscript{1}(x\textsubscript{1i}) + x\textsubscript{2i} + f\textsubscript{3}(x\textsubscript{3i}, x\textsubscript{4i}) ... \end{equation}
+
+    \subsection{Generalized Additive Models for large data sets}
+    \cite{GAM}
+
+    \subsection{Apache Spark}
+    Distributed computing is a special interest of mine. I've had the pleasure of setting up a SparkR cluster and have been following its development closely. Apache Spark advertises itself as a fast and general cluster computing engine for large-scale data processing. He a overview of it's key features:
+    \begin{itemize}
+        \item fast, Apache Spark currently holds the world record in sorting 1 TB on data, beating the previus record help by Hadoop. Spark reaches this high speed by removing I/O to disc and maintaining all relevant in memory.
+        \item general, Aparche Spark offers a high level API called Resilient Data Set. RDDs are designed to facilitate a resiliend, distributed data set as a optimal level of interaction with data. Each of the key features of RDDs are outlined below:
+        \begin{itemize}
+            \item Resilient: Every RDD is evaluated lazy and constructed from it's lineage, point to different previous RDD.
+            \item Distributed: RDDs are partiioned accross many machines
+            \item Data set: RDDs are ment to think about in terms of matrixes, this should feel very natural for people familar with data.
+        \end{itemize}
+        \item cluster computing, Apache Spark is build to be executed in a cluster enviroment like Mesos or Yarn. The management and design of these systems are not subject of my bachelor thesis but are centainly worthy of one.
+        \item large scale data processing, the data managable by Apache Spark is limited by the amount of memory availble in a cluster. The advent of obiquis cluster computing and the ability to scale horizontaly
+    \end{itemize} The implementation of the outlined optimization in the previously described enviroment is explained in the next section.
+
+    \subsection{General additive models in Apache Spark}
+    A general
+    \begin{itemize}
+        \item QR Update
+        \item Parallel computation
+        \item Getting f, r and bla without X
+        \begin{itemize}
+            \item F
+            \item R
+            \item X
+        \end{itemize}
+    \end{itemize}
+
+
+    \subsection{Leading question}
+
+    \paragraph{Can the distributed, numerically optimized, in-memory version of GAM fitting beat previous benchmark implementation in model size, data size and fitting speed?}
+
+    \paragraph{}
+    Subquestions arising are:
+        \begin{itemize}
+        \item How much faster is a parallel variant against the sequential one?
+        \item How much faster is the Spark in-memory variant against the R one?
+        \item What is the new limit for data and model size?
+        \end{itemize}
+
+    \subsection{Specific Approaches in Apache Spark}
+    The following is a brief comparision of the candidate approaches for my thesis.
+
+
+
+
+    \subsection{Deciding on an approach}
+
+    I have decided to implement the fitting of GAMs in Apache Spark. My choice will be explained now:
+    \paragraph{Nested Data Parallel}
+        Spark is fast
+        Iterative nature is well suited for in-memory
+
+
+
+    \subsection{What is novel in this approach?}
+    The suggested approach has been implemented in high-level statistical languages, proving its effectiveness. The suggested methods have not been implemented in an enviroment designed for in-memory cluster computing. As I lined out earlier the iterative nature of the proposed methods is well suited for a distributed in-memory enviroment and hence should be discoved
+
+    \subsection{When is the thesis regarded as completed?}
+    The thesis is considered finished, once various strategies of
+    implementing a chosen algorithm (e.g.  have been
+    implemented and compared in effectiveness/efficiency/human-workload.
+
+    \subsection{Which tasks have to be completed for this thesis?}
+    My work is defined by creating the progracomparing them.
+    The focus is on showing the various transformations applied in NDP, which the programmer would have had done manually.
+
+
+
+
+
+
+
+
+
+
+
+
+
+    \paragraph{Additional tasks}
+        \begin{itemize}
+            \item Read further papers on how NDP is implemented (especially. vectorization and fusioning)
+            \item Read futher literature on how to make quantified comparisions of the programs (e.g. parallel complexity, benchmarks, etc...)
+            \item Decide whether I will work with the true Haskell-Core code generated in    or apply the flattening and fusioning transformations manually.
+                The first variant is the actual source code that will later be executed - but it is hard to read. \footnote[1]{See \texttt{DotP.hs} and \texttt{DotP.vect.hs} at \href{https://github.com/GollyTicker/Nested-Data-Parallel-Haskell/tree/0e8d3df0d8084a01b007b27debda2b64247a254d}{my github repo}. }
+                The implementation of DPH is less developed than its theoretical background.
+                The second variant is easier to work with and simpler to present, however it will almost certainly be less optimized than the actual code.
+            \item Decide which algorithm(s) is/are to be used as examples. They should be easily visualizable and should have irregular behaviour.
+                Connected-Components-Labeling on images is such an candidate. Combining multiple algorithms into
+                a pipeline is also attractive, since cross-algorithm fusionsing and optimization is where Haskell can shine truely.
+            \item Learn how make benchmarks/create runtime statistics
+        \end{itemize}
+
+    \subsection{Which tasks are realistic to be accomplished within the scope of this thesis?}
+    I am optimistic that these task can be accomplished in a timeframe of 2 months. However, I might need to keep a tight focus or
+    choose a simple (and small) algorithm to keep the task accomplishable.
+
+    \subsection{Time plan}
+    My time plan is visible at table \ref{timetable}.
+    \begin{table}[h]
+        \begin{center}
+        \caption{Time table} % http://www.latex-tutorial.com/tutorials/beginners/lesson-8/
+        \label{timetable}
+        \begin{tabular}{rrl}
+            \toprule
+            CW & monday & thesis work \\
+            \midrule
+            17 & 20.04 & reading remaining papers, reading parallel complexity theory \\
+            18 & 27.04 & deciding on an algorithm, learning benchmarking  \\
+            19 & 4.05  & impleme \\
+            20 & 11.05  asd \\
+            21 & 18.05 & vectori \\
+            22 & 25.05 asd \\
+            23 & 1.06  & \textit{puffer} \\
+            24 & 8.06  & \textit{puffer} \\
+            25 & 15.06 & Begin to write down, prepare for exams\\
+            26 & 22.06 & Writing..., prepare for exams \\
+            27 & 29.06 & Writing..., prepare for exams \\
+            28 & 6.07  & Prepare Colloquium, Writing..., exams week 1 \\
+            29 & 13.07 & Prepare Colloquium, Finalize writing, exams week 1 \\
+            30 & 20.07 & Colloquium and Release \\
+            31 & 27.07 & Last week for Colloquium and Release \\
+            32 & 3.08  & Fin \texttt{:D} \\
+        \end{tabular}
+        \end{center}
+    \end{table}
+
+    \section{Draft - Contents}
+
+        The following presents a draft structure of my thesis.
+        Since the algorithm I am going to implement is not decided yet, I am using " " as its placeholder.
+
+        \begin{enumerate}
+
+        \item Introduction
+            \begin{enumerate}
+            \item Context
+            \item Goal
+            \item Structure
+            \end{enumerate}
+
+        \item Basics
+            \begin{enumerate}
+            \item Parallel Computing and Complexity
+            \item Haskell
+            \item Nested Data Parallelism
+                \begin{enumerate}
+                \item Parallel Arrays
+                \item Sparse Matrices - An Example
+                \item Execution model
+                \end{enumerate}
+            \end{enumerate}
+
+        \item   : Sequential
+            \begin{enumerate}
+            \item Implementation
+            \item Runtime analysis {\tiny (e.g. sequential/parallel complexity)}
+            \item Benchmark
+            \end{enumerate}
+
+        \item   : Manually-parallel
+            \begin{enumerate}
+            \item Implementation
+            \item Runtime analysis {\tiny (e.g. sequential/parallel complexity)}
+            \item Benchmark
+            \end{enumerate}
+
+        \item   : Nested-Data-Parallel
+            \begin{enumerate}
+            \item High-level Implementation
+            \item Transformations
+                \begin{enumerate}
+                \item Non-Parametric representation
+                \item Lifting
+                \item Vectorization
+                \item Fusioning
+                \end{enumerate}
+            \item Final low-level form
+
+            \item Benchmark
+            \end{enumerate}
+
+        \item Evaluation
+            \begin{enumerate}
+            \item Sequential vs. Parallel
+            \item Manually-Parallel vs. Nested-Data-Parallel
+            \end{enumerate}
+
+        \item Conclusion
+            \begin{enumerate}
+            \item Effectivenesss of Nested Data Parallel
+
+            \item Future work
+                \begin{enumerate}
+                    \item Alternate Algorithms
+                    \item Best of Repa and NDP
+                    \item Distributed NDP
+                    \item NDP on GPUs
+                \end{enumerate}
+            \end{enumerate}
+        \end{enumerate}
+
+    \newpage
+
+    \bibliography{expose}    % reference to expose.bib
+
+    \newpage
+
+    \section{Personal notes}
+
+    \begin{itemize}
+        \item Zeitplan für 2.5 Monate
+        \item English als Ausarbeitungssprache
+    \end{itemize}
+
+
+\end{document}
+
+\message{ !name(expose.tex) !offset(-335) }
