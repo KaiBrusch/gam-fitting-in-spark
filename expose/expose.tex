@@ -61,13 +61,13 @@
     \section{Introduction}
 
     \subsection{Context}
-    Regression analysis stands at the heart of modern statistical analysis. Discovering the relationship between a dependent and independent variables offers great insight into the underlying system and can even provide far reaching predictive capabilities. The traditional linear models explain the dependent variable as the sum of the independent variables and the linear interaction with an estimated coefficent.\cite{gamBook} describes the generalized additive model (GAM) as powerful extension of the generalized linear model, explaining the relationship between dependent and independent variables as the sum of smoothing functions. This modeling approach offers more flexibility than linear model and has been successfully established in academia and industry. However, the additional flexibility of GAMs comes at the cost of additional computational and memory requirements, placing strict constraints on the model and data size.\cite{bigdataGAM} suggest two optimization to eliviate these constraint: parallelization and numerical optimization.
-    These optimizations have been implemented and used in high-level statistical languages such as R, SPSS and Stata. While these implementations already allow for fitting of larger models with more data they have yet been implemented in a truly distributed enviroment.\cite{spark} introduced Apache Spark which has recently established itself as one of the most promising general purpose cluster computing engines. It's general and distributed nature offers the ideal environment to implement the by \cite{bigdataGAM} suggested optimizations, ideally proving better than previous implementations.
+    Regression analysis stands at the heart of modern statistical analysis. Discovering the relationship between dependent and independent variables offers great insight into the underlying system and can even provide far reaching predictive capabilities. The traditional linear models explain the dependent variable as the sum of the independent variables and the linear interaction with an estimated coefficent.\cite{gamBook} describes the generalized additive model (GAM) as a powerful extension of the generalized linear model, explaining the relationship between dependent and independent variables as the sum of smoothing functions. This modeling approach offers more flexibility than linear models and has been successfully established in academia and industry. However, the additional flexibility of GAMs comes at the cost of additional computational and memory requirements, placing strict constraints on the model and data size.\cite{bigdataGAM} suggest two optimizations to eliviate these constraints: parallelization and numerical optimization.
+    These optimizations have been implemented and used in high-level statistical languages such as R, SPSS and Stata. While these implementations already allow for fitting of larger models with more data they have not been implemented in a truly distributed enviroment.\cite{spark} introduced Apache Spark which has recently established itself as one of the most promising general purpose cluster computing engines. It's general and distributed nature offers the ideal environment to implement the suggested optimizations by \cite{bigdataGAM}. Ideally proving better than previous implementations.
 
 
     \section{Content}
     \subsection{General Linear Models}
-    Linear models are statistical models in which an univariate response is modeled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables, measured with the response variable, and some unknown parameters, which must be estimated. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science, both in the analysis of designed experiments. \
+    Linear models are statistical models in which an univariate response is modeled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables, measured with the response variable, and some unknown parameters, which must be estimated. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science.\
 
     \begin{equation}  \label{linModel} y\textsubscript{i} = \beta x\textsubscript{i} + \varepsilon\textsubscript{i} \end{equation}
 
@@ -75,7 +75,7 @@
 
     \begin{equation} \label{sumSquares} \mathbf{S} =  \sum_{i=1}^{n}(y\textsubscript{i} - x\textsubscript{i}\beta)^{2} \end{equation}
 
-    A good choice of $\beta$ should bring S close to 0. The  Markov-Gauss Theorem states that the minimization of S in yields $\widehat{\beta}$ which is the best possible estimation for $b$. \ref{linModel} represents the univariate case where y is explained with only one variable. This model can be extended to multiple explanatory variables yielding in a scalar matrix form.
+    A good choice of $\beta$ should bring S close to 0. The  Markov-Gauss Theorem states that the minimization of S yields $\widehat{\beta}$ which is the best possible estimation for $b$. \ref{linModel} represents the univariate case where y is explained with only one variable. This model can be extended to multiple independent variables yielding in a scalar matrix form.
 
     \begin{equation}  \label{linMatrixModel} y =  \mathbf{X} \beta \end{equation}
 
@@ -110,7 +110,7 @@
 
     \begin{equation} \label{univariateSmooth} y_i = f(x_i) + \epsilon_i \end{equation}
 
-    Literature suggest that the unknown smooth function $f()$ can easily be fund by specifying a linear base $b()$ for the smooth function. Only allowing linear basis allow us to heavily leverage the theory already developed for linear models and $S$ as the optimal model fit. For the sake of illustration we assume that \ref{univariateSmooth} can be rewrite as the following equation if $b_i(x)$ is the $ith$ basis function:
+    Literature suggest that the unknown smooth function $f()$ can easily be fund by specifying a linear base $b()$ for the smooth function. Only allowing linear basis allow us to heavily leverage the theory already developed for linear models and $S$ as the optimal model fit. For the sake of illustration we assume that \ref{univariateSmooth} can be rewriten as the following equation if $b_i(x)$ is the $ith$ basis function:
 
     \begin{equation} \label{smoothBase} f(x) = \sum_{i=1}^{q} b\textsubscript{i} (x) \beta \textsubscript{i} \end{equation}
 
@@ -122,18 +122,18 @@
 
     \begin{equation} \label{poly4thGAM}  y_i = \beta_1 + x_i\beta_2 + x_i^2\beta_3+ x_i^3\beta_4 + x_i^4\beta_5 + \epsilon_i \end{equation}
 
-    Equation \ref{poly4thGAM} gives a formal full description of  y\textsubscript{i} as the sum of a fourth degree polynomial. Fourth order polynomial basis does a fine jobs of illustrating the used concepts but enforce rather strict limitations. Instead of trying to fit a single fourth order polynomial to all our data points we will now try to represent $f$ with cubic splines. This approach is called regression splines and follows this general pattern:
+    Equation \ref{poly4thGAM} gives a formal full description of  y\textsubscript{i} as the sum of a fourth degree polynomial. Fourth order polynomial basis does a fine job of illustrating the used concepts but enforce rather strict limitations. Instead of trying to fit a single fourth order polynomial to all our data points we will now try to represent $f$ with cubic splines. This approach is called regression splines and follows this general pattern:
 
     \begin{itemize}
 
     \item Divide the curve in to a fixed number of sections, the point between two sections is called a knot.
-    \item Find a cubic polynomial for each section between two knot
-    \item Each cubic polynomial must match it's neighboors in value, first and second derivative at the location of the knot.
+    \item Find a cubic polynomial for each section between two knots
+    \item Each cubic polynomial must match it's neighbors in value, first and second derivative at the location of the knot.
     \item Each spline has zero second derivatives at the knot location to ensure a smooth transition.
 
     \end{itemize}
 
-    Using cubic splines as a basis for f means that \ref{univariateSmooth} becomes a linear model identical to \ref{linMatrixModel}. We can hence rely well established linear model theory to fit a good polynmial. The number and location of knots will influence the fit of our splines and are carefully chosen. Deciding on knot amount on location usually reflect some underlying mechanic of the modeled system and present a powerful way of modeling the relationship between depedent and independent variables. After establishing how to represent the smooth functions and the use of knots we will now turn to the smoothing parameter $\lambda$. $\lambda$ is a penalty factor that controls the smoothness by scaling the second derivative of the smooth function, this can be formalized by:
+    Using cubic splines as a basis for f means that \ref{univariateSmooth} becomes a linear model identical to \ref{linMatrixModel}. We can hence rely well established linear model theory to fit a good polynmial. The number and location of knots will influence the fit of our splines and are carefully chosen. The right number and location of knots can be estimated but are usually a problem speicifc design decision. After establishing how to represent the smooth functions and the use of knots we will now turn to the smoothing parameter $\lambda$. $\lambda$ is a penalty factor that controls the smoothness by scaling the second derivative of the smooth function, this can be formalized by:
 
     \begin{equation} \label{losswithpenalty} \left \| y - X\beta  \right \|^2 + \lambda \int_{0}^{1} [{f}''(x)]^2 dx \end{equation}
 
@@ -141,14 +141,14 @@
 
     \begin{equation} \label{finalsmooth} \left \| y - X\beta  \right \|^2 + \lambda \beta^T S\beta  \end{equation}
 
-    \ref{finalsmooth} shows that describing an unknown variable as the sum of smooth functions can be restated as the minimization of penelized regression splines and hence becomes problem of minimizing equation \ref{finalsmooth}. While the the problem of finding a smooth function for a univariate function has almost been solved by \ref{finalsmooth} we are still left with an unknown parameter of \textlambda. Finding the optimal $\textlambda$ is subject of the following section.
+    \ref{finalsmooth} shows that describing an unknown variable as the sum of smooth functions can be restated as the minimization of penalized regression splines and hence becomes problem of minimizing equation \ref{finalsmooth}. While the the problem of finding a smooth function for a univariate function has almost been solved by \ref{finalsmooth} we are still left with an unknown parameter of \textlambda. Finding the optimal \textlambda is subject of the following section.
 
     \subsection{Smoothing parameter Estimation with generalized cross validation}
-    Finding a good smoothing parameter through minimizing \ref{finalsmooth} the essential question for GAM research. Finding a optimal choice for \textlambda means to trade goodness of fit to smoothness. A high \textlambda will overfit the data while a low \textlambda will create undersmoothed splines. The common approach is to define a measure for the predictive capabilities of our estimated spline. For our purposes we will use the generalized cross validation (GCV) which formalizes the notion that an ideal splines minimizes the average distance between our splines and the function f in relation to the mean weight: $tr(I-A)/n$ yielding
+    Finding a good smoothing parameter through minimizing \ref{finalsmooth} the essential question for GAM research. Finding an optimal choice for \textlambda means to trade goodness of fit to smoothness. A high \textlambda will overfit the data while a low \textlambda will create undersmoothed splines. The common approach is to define a measure for the predictive capabilities of our estimated spline. For our purposes we will use the generalized cross validation (GCV) which formalizes the notion that an ideal splines minimizes the average distance between our splines and the function f in relation to the mean weight: $tr(I-A)/n$ yielding
 
     \begin{equation} \label{FULLGCV} V_g(\lambda) = \frac{n\left \| y-X\widehat{\beta}_\lambda \right \| ^2}{\{n-tr(F_\lambda) \}^2} \end{equation}
 
-    \ref{FULLGCV} describes the full process of finding the optimal \textlambda.  Literature suggests a Newton method to optimize $V_g$ with respect to $log(\lambda)$ with $\widehat{\beta}_\lambda$ being obtained from the minimization of \label{finalsmooth} as the full process of finding a optimal smooth function. In practice however has penalized likelihood maximization, in place of penalized least squares proven to be more useful. The algorithm that is used to maximize the penalized likelihood is penalized iteratively reweighted least squares (PIRLS) which proceeds as follows, where V is the function such that $var(y_i) = \phi V(\mu_i)/$ and $\mu_i = E(y_i)$. First initialize $\widehat{\mu_i} = y_i + \epsilon_i $ and $\eta_i = g(\mu_i)$ where $\epsilon_i$ is a small quantity (often 0) added to ensure that $g(\mu_i)$ exists.
+    \ref{FULLGCV} describes the full process of finding the optimal \textlambda.  Literature suggests a Newton method to optimize $V_g$ with respect to $log(\lambda)$ with $\widehat{\beta}_\lambda$ being obtained from the minimization of \ref{finalsmooth} as the full process of finding an optimal smooth function. In practice however has penalized likelihood maximization, in place of penalized least squares proven to be more useful. The algorithm that is used to maximize the penalized likelihood is penalized iteratively reweighted least squares (PIRLS) which proceeds as follows, where V is the function such that $var(y_i) = \phi V(\mu_i)/$ and $\mu_i = E(y_i)$. First initialize $\widehat{\mu_i} = y_i + \epsilon_i $ and $\eta_i = g(\mu_i)$ where $\epsilon_i$ is a small quantity (often 0) added to ensure that $g(\mu_i)$ exists.
 
     Then iterate the following steps to convergence.
     \begin{enumerate}
@@ -161,7 +161,7 @@
     with respect to $\beta$ to obtain $\widehat{\beta_i}$ and the updates $\widehat{\eta_i} =X\widehat{\beta}$, and $\widehat{\mu_i} =g^-1(\widehat{\eta_i})$.
     \end{enumerate}
 
-    For moderate size data PIRLS will converge for each tiral $\lambda$. Iterating \ref{FINALSMOOTHW} to obtain the new estimates can place a heavy burden on the memory requirements. Each step of the PIRLS requires to form the whole model matrix X. The difficulty is simply that the model matrix for the model can become too big: if n and p are respectively the number of rows and columns of the model matrix, and M is the number of smoothing parameters, then the memory requirements of GAM fitting methods are typically $O(Mnp^2)$. The aim of my bachelor thesis is to discover and implement the in \cite{bigdataGAM} suggested optimizations.
+    For moderate size data PIRLS will converge for each trial $\lambda$. Iterating \ref{FINALSMOOTHW} to obtain the new estimates can place a heavy burden on the memory requirements. Each step of the PIRLS requires to form the whole model matrix X. The difficulty is simply that the model matrix for the model can become too big: if n and p are respectively the number of rows and columns of the model matrix, and M is the number of smoothing parameters, then the memory requirements of GAM fitting methods are typically $O(Mnp^2)$. The aim of my bachelor thesis is to discover and implement the in \cite{bigdataGAM} suggested optimizations.
 
 
 
@@ -174,17 +174,17 @@
 
     \begin{equation} \label{NEWGCV} \left \| f- R\beta \right \|^2 + \left \| r \right \|^2 + \sum_{j}^{ } \lambda_j \beta^T S_j \beta \end{equation}.
 
-    \ref{NEWGCV} allows us to rewrite \ref{NEWGCV} in a form that does not require the full model matrix X.
+    \ref{NEWGCV} can be rewritten in a form that does not require the full model matrix X.
 
     \begin{equation} \label{NEWNEWGCV} V_g(\lambda) = \frac{n\left \| f-R\widehat{\beta}_\lambda \right \| ^2 + \left  \| r \right \| ^2}{\{n-tr(F_\lambda) \}^2} \end{equation}.
 
-    \label{NEWNEWGCV} brings a tramendous advantage over \label{FULLGCV} in terms of memory and computational usage. Receiving all relevant information to find \textlambda for a given $X$ only forming subsections $R$ $f$ and $||r||^2$ gives a significant advantage over the proposed method in \ref{FULLGCV}.
+    \ref{NEWNEWGCV} brings a tramendous advantage over \ref{FULLGCV} in terms of memory and computational usage. Receiving all relevant information to find \textlambda for a given $X$ only forming subsections $R$ $f$ and $||r||^2$ gives a significant advantage over the proposed method in \ref{FULLGCV}.
 
     The parallelization optimimization of \label{FULLGCV} envolves the computations of $R$ $f$ and $||r||^2$ in a way that only requires small, disjunct subsections of $X$. This allows us to distribute the computation by grouping $X$ into equally sized non-overlapping sets and allocate them to different processors.
 
 
     \subsection{Apache Spark}
-    Distributed computing is a special interest of mine. I've had the pleasure of setting up a SparkR cluster and have been following its development closely. \ref{spark} advertises Spark as a fast and general cluster computing engine for large-scale data processing. He a overview of it's key features:
+    Distributed computing is a special interest of mine. I've had the pleasure of setting up a SparkR cluster and have been following its development closely. \cite{spark} advertises Spark as a fast and general cluster computing engine for large-scale data processing. Here a overview of it's key features:
     \begin{itemize}
         \item fast, Apache Spark currently holds the world record in sorting 1 TB on data, beating the previus record help by Hadoop. Spark reaches this high speed by removing I/O to disc and maintaining all relevant in memory.
         \item general, Aparche Spark offers a high level API called Resilient Data Set. RDDs are designed to facilitate a resiliend, distributed data set as a optimal level of interaction with data. Each of the key features of RDDs are outlined below:
@@ -193,18 +193,18 @@
             \item Distributed: RDDs are partiioned accross many machines
             \item Data set: RDDs are ment to think about in terms of matrixes, this should feel very natural for people familar with data.
         \end{itemize}
-        \item cluster computing, Apache Spark is build to be executed in a cluster enviroment like Mesos or Yarn. The management and design of these systems are not subject of my bachelor thesis.
+        \item cluster computing, Apache Spark is build to be executed in a cluster environment like Mesos or Yarn. The management and design of these systems are not subject of my bachelor thesis.
         \item large scale data processing, the data managable by Apache Spark is limited by the amount of memory available in a cluster.
 
     \end{itemize}
 
     \subsection{General additive models in Apache Spark}
-    I strongly believe that Apache Spark offers an ideal enviroment for gitting GAMs for large data sets. The optimizations suggested by \cite{bigdataGAM} are optimal for an general purpose in-cluster computing engine for the following reasons:
+    I strongly believe that Apache Spark offers an ideal environment for gitting GAMs for large data sets. The optimizations suggested by \cite{bigdataGAM} are optimal for an general purpose in-cluster computing engine for the following reasons:
     \begin{itemize}
         \item The iterative nature of PIRLS is optimal for Spark's in memory computing.
         \item Spark's high level RDD allows for a flexible data structure to implement the suggested methods.
         \item Spark is designed to facilitate the parallel nature of finding $R$ $f$ and $||r||^2$ in subblocks of $X$.
-        \item Spark supports \cite{Breeze}, a linear algebra libraries for Scala with far reaching capabilities.
+        \item Spark supports \cite{Breeze}, a linear algebra library for Scala with far reaching capabilities.
     \end{itemize}
 
     \section{Guiding Questions}
@@ -233,8 +233,9 @@
         \begin{itemize}
             \item Develop a deep theoretical unterstanding of GAMs with \cite{gamBook}
             \item Develop a better understanding of used matrix decompositions with \cite{strang09}
-            \item Set up an Apache Spark enviroment
-            \item Coordinate with my employer to facilitate support
+            \item Set up an Apache Spark environment.
+            \item Familiarize with Breeze in Apache Spark.
+            \item Coordinate with FSB and my employer to request my employer as second examiner
         \end{itemize}
 
     \subsection{Which tasks are realistic to be accomplished within the scope of this thesis?}
@@ -250,27 +251,31 @@
             \toprule
             CW & thesis work \\
             \midrule
-            45  & Develop a deep theoretical unterstanding of GAMs and used numerical methods \\
-            46  & Develop a deep theoretical unterstanding of GAMs and used numerical methods \\
-            47  & Develop a deep theoretical unterstanding of GAMs and used numerical methods \\
-            48  & Set up an Apache Spark Enviroment \\
-            49  & Start implementing  \\
-            50  & Implementation \\
+            45  & Develop a deep theoretical unterstanding of GAMs and used methods \\
+            46  & Develop a deep theoretical unterstanding of GAMs and used methods \\
+            47  & Develop a deep theoretical unterstanding of GAMs and used methods \\
+            48  & Set up an Apache Spark Environment \\
+            49  & Start implementing matrix decompositions with Breeze in Apache Spark \\
+            50  & Continue implementing matrix decompositions \\
             51  & Winter break \\
             52  & Winter break \\
-            1  & Imlementation and Exams \\
-            2  & Imlementation and Exams \\
-            3  & Imlementation and Exams \\
-            4  & Imlementation and Exams \\
-            5  & Break \\
-            6  & Finish implementation \\
-            7  & Start writing \\
-            8  & writing \\
-            9  & writing \\
-            10  & writing \\
-            11  & writing \\
-            12  & writing \\
-            13  & Done \\
+            1  & Implementation and Exams \\
+            2  & Implementation and Exams \\
+            3  & Implementation and Exams \\
+            4  & Implementation and Exams \\
+            5  & Post Exams Break \\
+            6  & Start implemeting GAM fitting \\
+            7  & Implementation of GAM fitting \\
+            8  & Implementation of GAM fitting and run bechmark tests \\
+            9  & Run benchmarks tests  \\
+            10  & Buffer \\
+            11  & writing bachelor thesis\\
+            12  & writing bachelor thesis\\
+            13  & writing bachelor thesis\\
+            14  & writing bachelor thesis\\
+            15  & writing bachelor thesis\\
+            16  & Done \\
+
 
 
         \end{tabular}
