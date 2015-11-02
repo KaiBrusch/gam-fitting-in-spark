@@ -31,7 +31,7 @@
     Fitting Generalized Additive Models for\\ very large datasets with Apache Spark \\[7pt]
     \large An exposé for a bachelor thesis
 }
-\date{02.11.2015}
+\date{05.11.2015}
 \author{Kai Thomas Brusch}
 
 
@@ -146,9 +146,9 @@
     \subsection{Smoothing parameter Estimation with generalized cross validation}
     Finding a good smoothing parameter through minimizing \ref{finalsmooth} the essential question for GAM research. Finding an optimal choice for \textlambda means to trade goodness of fit to smoothness. A high \textlambda will overfit the data while a low \textlambda will create undersmoothed splines. The common approach is to define a measure for the predictive capabilities of our estimated spline. For our purposes we will use the generalized cross validation (GCV) which formalizes the notion that an ideal splines minimizes the average distance between our splines and the function f in relation to the mean weight: $tr(I-A)/n$ yielding
 
-    \begin{equation} \label{FULLGCV} V_g(\lambda) = \frac{n\left \| y-X\widehat{\beta}_\lambda \right \| ^2}{\{n-tr(F_\lambda) \}^2} \end{equation}
+    \begin{equation} \label{fullgcv} V_g(\lambda) = \frac{n\left \| y-X\widehat{\beta}_\lambda \right \| ^2}{\{n-tr(F_\lambda) \}^2} \end{equation}
 
-    \ref{FULLGCV} describes the full process of finding the optimal \textlambda.  Literature suggests a Newton method to optimize $V_g$ with respect to $log(\lambda)$ with $\widehat{\beta}_\lambda$ being obtained from the minimization of \ref{finalsmooth} as the full process of finding an optimal smooth function. In practice however has penalized likelihood maximization, in place of penalized least squares proven to be more useful. The algorithm that is used to maximize the penalized likelihood is penalized iteratively reweighted least squares (PIRLS) which proceeds as follows, where V is the function such that $var(y_i) = \phi V(\mu_i)/$ and $\mu_i = E(y_i)$. First initialize $\widehat{\mu_i} = y_i + \epsilon_i $ and $\eta_i = g(\mu_i)$ where $\epsilon_i$ is a small quantity (often 0) added to ensure that $g(\mu_i)$ exists.
+    \ref{fullgcv} describes the full process of finding the optimal \textlambda.  Literature suggests a Newton method to optimize $V_g$ with respect to $log(\lambda)$ with $\widehat{\beta}_\lambda$ being obtained from the minimization of \ref{finalsmooth} as the full process of finding an optimal smooth function. In practice however has penalized likelihood maximization, in place of penalized least squares proven to be more useful. The algorithm that is used to maximize the penalized likelihood is penalized iteratively reweighted least squares (PIRLS) which proceeds as follows, where V is the function such that $var(y_i) = \phi V(\mu_i)/$ and $\mu_i = E(y_i)$. First initialize $\widehat{\mu_i} = y_i + \epsilon_i $ and $\eta_i = g(\mu_i)$ where $\epsilon_i$ is a small quantity (often 0) added to ensure that $g(\mu_i)$ exists.
 
     Then iterate the following steps to convergence.
     \begin{enumerate}
@@ -170,7 +170,7 @@
 
     The numerical optimization propossed by \cite{bigdataGAM} rewrites the general cross validation step to not require the full model matrix X in each step. Woods describes a stategy on how model matrix factorization can be used to avoid formation of the whole model matrix in each iteration.
 
-    Suppose that the model matrix is first QR decomposed into a column orthogonal $n * p$ factor Q and an upper triangular $p * p$ factor R so that $X=QR$: If we also form $f =Q^Ty$ and then expression \label{finalsmooth} becomes
+    Suppose that the model matrix is first QR decomposed into a column orthogonal $n * p$ factor Q and an upper triangular $p * p$ factor R so that $X=QR$: If we also form $f =Q^Ty$ and then expression \ref{finalsmooth} becomes
 
     \begin{equation} \label{NEWGCV} \left \| f- R\beta \right \|^2 + \left \| r \right \|^2 + \sum_{j}^{ } \lambda_j \beta^T S_j \beta \end{equation}.
 
@@ -178,9 +178,9 @@
 
     \begin{equation} \label{NEWNEWGCV} V_g(\lambda) = \frac{n\left \| f-R\widehat{\beta}_\lambda \right \| ^2 + \left  \| r \right \| ^2}{\{n-tr(F_\lambda) \}^2} \end{equation}.
 
-    \ref{NEWNEWGCV} brings a tramendous advantage over \ref{FULLGCV} in terms of memory and computational usage. Receiving all relevant information to find \textlambda for a given $X$ only forming subsections $R$ $f$ and $||r||^2$ gives a significant advantage over the proposed method in \ref{FULLGCV}.
+    \ref{NEWNEWGCV} brings a tramendous advantage over \ref{fullgcv} in terms of memory and computational usage. Receiving all relevant information to find \textlambda for a given $X$ only forming subsections $R$ $f$ and $||r||^2$ gives a significant advantage over the proposed method in \ref{fullgcv}.
 
-    The parallelization optimimization of \label{FULLGCV} envolves the computations of $R$ $f$ and $||r||^2$ in a way that only requires small, disjunct subsections of $X$. This allows us to distribute the computation by grouping $X$ into equally sized non-overlapping sets and allocate them to different processors.
+    The parallelization optimimization of \ref{fullgcv} envolves the computations of $R$ $f$ and $||r||^2$ in a way that only requires small, disjunct subsections of $X$. This allows us to distribute the computation by grouping $X$ into equally sized non-overlapping sets and allocate them to different processors.
 
 
     \subsection{Apache Spark}
