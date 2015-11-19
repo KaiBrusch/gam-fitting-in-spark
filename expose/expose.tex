@@ -64,6 +64,8 @@
     Regression analysis stands at the heart of modern statistical analysis. Discovering the relationship between dependent and independent variables offers great insight into the underlying system and can even provide far reaching predictive capabilities. The traditional linear models explain the dependent variable as the sum of the independent variables and the linear interaction with an estimated coefficent.\cite{gamBook} describes the generalized additive model (GAM) as a powerful extension of the generalized linear model, explaining the relationship between dependent and independent variables as the sum of smoothing functions. This modeling approach offers more flexibility than linear models and has been successfully established in academia and industry. However, the additional flexibility of GAMs comes at the cost of additional computational and memory requirements, placing strict constraints on the model and data size.\cite{bigdataGAM} suggest two optimizations to eliviate these constraints: parallelization and numerical optimization.
     These optimizations have been implemented and used in high-level statistical languages such as R, SPSS and Stata. While these implementations already allow for fitting of larger models with more data they have not been implemented in a truly distributed enviroment.\cite{spark} introduced Apache Spark which has recently established itself as one of the most promising general purpose cluster computing engines. It's general and distributed nature offers the ideal environment to implement the suggested optimizations by \cite{bigdataGAM}. Ideally proving better than previous implementations.
 
+    Many relevant concepts of my bachelor thesis have not been part of my bachelor curriculum and are mostly self-taught. I therefore would like to use this exposé to also introduce some of the relevant theory.
+
 
     \section{Content}
     \subsection{General Linear Models}
@@ -75,22 +77,27 @@
 
     \begin{equation} \label{sumSquares} \mathbf{S} =  \sum_{i=1}^{n}(y\textsubscript{i} - x\textsubscript{i}\beta)^{2} \end{equation}
 
-    A good choice of $\beta$ should bring S close to 0. The  Markov-Gauss Theorem states that the minimization of S yields $\widehat{\beta}$ which is the best possible estimation for $b$. \ref{linModel} represents the univariate case where y is explained with only one variable. This model can be extended to multiple independent variables yielding in a scalar matrix form.
+    A good choice of $\beta$ should bring S close to 0. The  Markov-Gauss Theorem states that the minimization of S yields $\widehat{\beta}$ which is the best possible estimation for $b$. \ref{linModel} represents the univariate case where y is explained with only one variable. The process of minimizing S is commonly refered to as ordinary least squares (OLS).This model can be extended to multiple independent variables yielding in a scalar matrix form.
 
     \begin{equation}  \label{linMatrixModel} y =  \mathbf{X} \beta \end{equation}
 
-     The dependent  variable vector \textit{y} is the linear combination of model matrix \textit{X} and the vector of unknown parameter \textbeta. Finding the best possible estimator $\widehat{\beta}$ for \ref{linMatrixModel} is formalized stated as the minimal length of the Euclidean distance:
+     The dependent  variable vector \textit{y} is the linear combination of model matrix \textit{X} and the vector of unknown parameter \textbeta. Finding the best possible estimator $\widehat{\beta}$ for \ref{linMatrixModel} is formalized stated as the minimal length of the distance between y and X\textbeta:
 
     \begin{equation} \label{matrixLOSS} \left \| y - X\beta  \right \|^2 \end{equation}
 
-    Minimizing \ref{matrixLOSS} will yield in the best possible estimator $\widehat{\beta}$. This has been well established and many of the following problems leverage knowledge on how to obtain $\widehat{\beta}$ through \ref{matrixLOSS}.
+    Minimizing \ref{matrixLOSS} will yield in the best possible estimator $\widehat{\beta}$. OLS stands at the heart of many statistical models and will be relevant later in this exposé, it is important to note however that OLS only works to estimate $\widehat{\beta}$ for normally distributed data.
 
     \subsection{Generalized Linear Models}
-    Generalized linear models (GLMs) relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (normal, Poisson, binomial, gamma etc.).
+    Generalized linear models (GLMs) relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (normal, Poisson, Binomial, Gamma etc.). While OLS was sufficient for estimating $\beta$ for normal distributed data we have to generalize this notion to acount for an arbitrary amount of distribution parameters. Insteat of looking for a $\beta$ that will minimize the squared error we are now looking for a set of parameters given an expotential distribution that fits our data the best. This process of finding the best parameters for a given distribution and data points is called maximimum likelihood estimation (LME). A maximum likelihood estimate, estimates some hidden parameter $\lambda$ for idenditical, independant distributed data $X_1 ...., X_i$ for a given probability density distribution of the expotential family. Let a given distribution be governed by a probability density function $f(x; \lambda_i ..., \lambda_i)$, we can then formaly describe MLE as:
+
+    \begin{equation} \label{MLE} L(X_1, ..., X_i) =  \prod_{n}^{i=1} f(X_i; \lambda_1, ... \lambda_i) \end{equation}
+
+    MLE is the essential method in estimation GLMs and finding the best model parameter $\lambda$ stands at the core of fitting any statistical model beyond simple linear ones. Fitting models via MLE involves iterating over possible $\lambda$ values to maximize the likelihood. With some work we can state MLE as a general case of OLS. Modern applications use a form of the iterative reweighted least squares method in conjunction with a Gauss-Newton method to maximize the likelihood. Details of these methods shall be discussed in my bachelor thesis.
 
     \begin{equation} \label{glmMatrix} g(\mu\textsubscript{i}) = \mathbf{X} \beta \end{equation}
 
-    Equation \ref{glmMatrix} introduces formal notation for GLMs and illustrates the similarities to the genral linear model. It is important to recognize the smooth monotonic function \textit{g()}. The smooth monotonic function, also known as link function, is the key extension which enables GLMs to model members of the expotential family with a linear model.
+
+    Equation \ref{glmMatrix} introduces formal notation for GLMs and illustrates the similarities to the genral linear model.The change of parameter estimation method does not become obvious in the usual GLM notation but is essential. It is important to recognize the smooth monotonic function \textit{g()}. The smooth monotonic function, also known as link function, is the key extension which enables GLMs to model members of the expotential family.
 
     \subsection{Generalized Additive Models}
     Generalized Additive Models (GAMs) extends the GLM by specifying the linear prediction in terms of the summation of smooth functions. This allows for a more flexible modeling of the influence for each explanatory variable. The gained flexibility comes at the cost of additional questions concerning the smooth function:
@@ -110,11 +117,11 @@
 
     \begin{equation} \label{univariateSmooth} y_i = f(x_i) + \epsilon_i \end{equation}
 
-    Literature suggest that the unknown smooth function $f()$ can easily be fund by specifying a linear base $b()$ for the smooth function. Only allowing linear basis allow us to heavily leverage the theory already developed for linear models and $S$ as the optimal model fit. For the sake of illustration we assume that \ref{univariateSmooth} can be rewriten as the following equation if $b_i(x)$ is the $ith$ basis function:
+     Smooth functions form a vector space, which can be approximated using a linear basis.Only allowing linear basis allow us to heavily leverage the theory already developed for linear models and $S$ as the optimal model fit. For the sake of illustration we assume that \ref{univariateSmooth} can be rewriten as the following equation if $b_i(x)$ is the $ith$ basis function:
 
     \begin{equation} \label{smoothBase} f(x) = \sum_{i=1}^{q} b\textsubscript{i} (x) \beta \textsubscript{i} \end{equation}
 
-    In \ref{smoothBase} we already know $bi$ and \ref{smoothBase}is linear. We now have to specify a basis function to represent $bi$. We can choose from many basis functions for $bi$, each with advantages and disadvantages. A common choice however is a fourth order polynomial basis function. \ref{smoothBase} represented by a fourth order polynomial yields the following model:
+    In \ref{smoothBase} we already know $f()$ is linear in regard to \ref{smoothBase}. We now have to specify a basis function to represent $bi$. We can choose from many basis functions for $bi$, each with advantages and disadvantages. A common choice however is a fourth order polynomial basis function. \ref{smoothBase} represented by a fourth order polynomial yields the following model:
 
     \begin{equation} \label{poly4th} f(x) = \beta \textsubscript{1} + x\beta \textsubscript{2} + x^2\beta \textsubscript{3} + x^3\beta \textsubscript{4} + x^4\beta \textsubscript{5}  \end{equation}
 
@@ -129,7 +136,6 @@
     \item Divide the curve in to a fixed number of sections, the point between two sections is called a knot.
     \item Find a cubic polynomial for each section between two knots
     \item Each cubic polynomial must match it's neighbors in value, first and second derivative at the location of the knot.
-    \item Each spline has zero second derivatives at the knot location to ensure a smooth transition.
 
     \end{itemize}
 
@@ -137,22 +143,23 @@
 
     \begin{equation} \label{losswithpenalty} \left \| y - X\beta  \right \|^2 + \lambda \int_{0}^{1} [{f}''(x)]^2 dx \end{equation}
 
-    The integrated square root of second derivative penalizes models that have a too 'rough' function. As \textlambda approaches 0 $f$ will become a straight regression line while \textlambda of 0 becomes an unpenelized regression spline. The trade off between model fit and and model smoothness is controlled by the smoothing parameter \textlambda. The linear nature of $f$ allows us to rewrite \ref{losswithpenalty} in a more concise form.
+    The integrated square root of second derivative penalizes models that have a too 'rough' function. As $\lambda$ approaches 0 $f$ will become a straight regression line while $\lambda$ of 0 becomes an unpenelized regression spline. The trade off between model fit and and model smoothness is controlled by the smoothing parameter $\lambda$. The linear nature of $f$ allows us to rewrite \ref{losswithpenalty} in a more concise form.
 
     \begin{equation} \label{finalsmooth} \left \| y - X\beta  \right \|^2 + \lambda \beta^T S\beta  \end{equation}
 
-    \ref{finalsmooth} shows that describing an unknown variable as the sum of smooth functions can be restated as the minimization of penalized regression splines and hence becomes problem of minimizing equation \ref{finalsmooth}. While the the problem of finding a smooth function for a univariate function has almost been solved by \ref{finalsmooth} we are still left with an unknown parameter of \textlambda. Finding the optimal \textlambda is subject of the following section.
+    \ref{finalsmooth} shows that describing an unknown variable as the sum of smooth functions can be restated as the minimization of penalized regression splines and hence becomes problem of minimizing equation \ref{finalsmooth}. While the the problem of finding a smooth function for a univariate function has almost been solved by \ref{finalsmooth} we are still left with an unknown parameter of $\lambda$. Finding the optimal $\lambda$ is subject of the following section. It is important to remember that this $\lambda$ is not the distribution parameter from MLE but the smoothing parameter $\lambda$ for GAMs.
 
     \subsection{Smoothing parameter Estimation with generalized cross validation}
-    Finding a good smoothing parameter through minimizing \ref{finalsmooth} the essential question for GAM research. Finding an optimal choice for \textlambda means to trade goodness of fit to smoothness. A high \textlambda will overfit the data while a low \textlambda will create undersmoothed splines. The common approach is to define a measure for the predictive capabilities of our estimated spline. For our purposes we will use the generalized cross validation (GCV) which formalizes the notion that an ideal splines minimizes the average distance between our splines and the function f in relation to the mean weight: $tr(I-A)/n$ yielding
+    Finding a good smoothing parameter through minimizing \ref{finalsmooth} the essential question for GAM research. Finding an optimal choice for $\lambda$ means to trade goodness of fit to smoothness. A high $\lambda$ will overfit the data while a low $\lambda$ will create undersmoothed splines. The common approach is to define a measure for the predictive capabilities of our estimated spline. For our purposes we will use the generalized cross validation (GCV) which formalizes the notion that an ideal splines minimizes the average distance between our splines and the function f.Another interpretation is to see the GCV as the prediction error and that finding the best smoothing parameter is equivialent to find the smoothing parameter with the minimal prediction error. A formal definition of the GCV score yields:
 
     \begin{equation} \label{fullgcv} V_g(\lambda) = \frac{n\left \| y-X\widehat{\beta}_\lambda \right \| ^2}{\{n-tr(F_\lambda) \}^2} \end{equation}
 
-    \ref{fullgcv} describes the full process of finding the optimal \textlambda.  Literature suggests a Newton method to optimize $V_g$ with respect to $log(\lambda)$ with $\widehat{\beta}_\lambda$ being obtained from the minimization of \ref{finalsmooth} as the full process of finding an optimal smooth function. In practice however has penalized likelihood maximization, in place of penalized least squares proven to be more useful. The algorithm that is used to maximize the penalized likelihood is penalized iteratively reweighted least squares (PIRLS) which proceeds as follows, where V is the function such that $var(y_i) = \phi V(\mu_i)/$ and $\mu_i = E(y_i)$. First initialize $\widehat{\mu_i} = y_i + \epsilon_i $ and $\eta_i = g(\mu_i)$ where $\epsilon_i$ is a small quantity (often 0) added to ensure that $g(\mu_i)$ exists.
+    \ref{fullgcv} formalizes that the generalized cross validation score for a given $\lambda$, formaly $V_g(\lambda)$ is $n$ times the squared distance for a currently estimated parameter $\widehat{\beta}$ given a $\lambda$. This distance get put in perspective to degrees of freedom for the current $\lambda$: $\{n-tr(F_\lambda\}^2$. Hence the GCV score expresses goodness of fit as the tradeoff between fitting the points and degrees of freedom for a given $\lambda$. Finding $\lambda$ is done via penalized likelihood
+     iteratively reweighted least squares (PIRLS) which proceeds as follows, where V is the function such that $var(y_i) = \phi V(\mu_i)$ and $\mu_i = E(y_i)$. First initialize $\widehat{\mu_i} = y_i + \epsilon_i $ and $\eta_i = g(\mu_i)$ where $\epsilon_i$ is a small quantity (often 0) added to ensure that $g(\mu_i)$ exists.
 
     Then iterate the following steps to convergence.
     \begin{enumerate}
-    \item form $z_i = g'(\widehat{\mu_i})(y_i − \widehat{\mu_i}) + \eta_i$ and $w_i = V(\widehat{\mu_i})^(1/2) g'(\widehat{\mu_i})$.
+    \item form $z_i = g\'(\widehat{\mu_i})(y_i − \widehat{\mu_i}) + \eta_i$ and $w_i = V(\widehat{\mu_i})^{1/2} g\'(\widehat{\mu_i})^{-1}$.
     \item putting the $wi$ in a diagonal matrix $W$, minimize the weighted version of expression \ref{finalsmooth}:
 
     \begin{equation} \label{FINALSMOOTHW} \left \| Wz - WX\beta  \right \|^2 + \lambda \beta^T S\beta  \end{equation}
@@ -161,7 +168,7 @@
     with respect to $\beta$ to obtain $\widehat{\beta_i}$ and the updates $\widehat{\eta_i} =X\widehat{\beta}$, and $\widehat{\mu_i} =g^-1(\widehat{\eta_i})$.
     \end{enumerate}
 
-    For moderate size data PIRLS will converge for each trial $\lambda$. Iterating \ref{FINALSMOOTHW} to obtain the new estimates can place a heavy burden on the memory requirements. Each step of the PIRLS requires to form the whole model matrix X. The difficulty is simply that the model matrix for the model can become too big: if n and p are respectively the number of rows and columns of the model matrix, and M is the number of smoothing parameters, then the memory requirements of GAM fitting methods are typically $O(Mnp^2)$. The aim of my bachelor thesis is to discover and implement the in \cite{bigdataGAM} suggested optimizations.
+    For moderate size data PIRLS will converge for each trial $\lambda$. Iterating \ref{FINALSMOOTHW} to obtain the new estimates can place a heavy burden on the memory requirements. Each step of the PIRLS requires to form the whole model matrix X. The difficulty is simply that the model matrix for the model can become too big: if n and p are respectively the number of rows and columns of the model matrix, and M is the number of smoothing parameters, then the memory requirements of GAM fitting methods are typically $O(Mnp^2)$..The aim of my bachelor thesis is to discover and implement the in \cite{bigdataGAM} suggested optimizations for PIRLS.Though I am able to reproduce the wording of this method I currently do not understand this method in detail, understading this method will be one of the core tasks in the next weeks, table 1 for reference.
 
 
 
@@ -178,9 +185,9 @@
 
     \begin{equation} \label{NEWNEWGCV} V_g(\lambda) = \frac{n\left \| f-R\widehat{\beta}_\lambda \right \| ^2 + \left  \| r \right \| ^2}{\{n-tr(F_\lambda) \}^2} \end{equation}.
 
-    \ref{NEWNEWGCV} brings a tramendous advantage over \ref{fullgcv} in terms of memory and computational usage. Receiving all relevant information to find \textlambda for a given $X$ only forming subsections $R$ $f$ and $||r||^2$ gives a significant advantage over the proposed method in \ref{fullgcv}.
+    \ref{NEWNEWGCV} brings a tramendous advantage over \ref{fullgcv} in terms of memory and computational usage. Receiving all relevant information to find $\lambda$ for a given $X$ only forming subsections $R$ $f$ and $||r||^2$ gives a significant advantage over the proposed method in \ref{fullgcv}.
 
-    The parallelization optimimization of \ref{fullgcv} envolves the computations of $R$ $f$ and $||r||^2$ in a way that only requires small, disjunct subsections of $X$. This allows us to distribute the computation by grouping $X$ into equally sized non-overlapping sets and allocate them to different processors.
+    The parallelization optimimization of \ref{fullgcv} envolves the computations of $R$ $f$ and $||r||^2$ in a way that only requires small, disjunct subsections of $X$. This allows us to distribute the computation by grouping $X$ into equally sized non-overlapping sets and allocate them to different processors. I do not understand the details of this optimization at this moment, understanding them will be part of my studies in the upcoming weeks.
 
 
     \subsection{Apache Spark}
@@ -199,7 +206,7 @@
     \end{itemize}
 
     \subsection{General additive models in Apache Spark}
-    I strongly believe that Apache Spark offers an ideal environment for gitting GAMs for large data sets. The optimizations suggested by \cite{bigdataGAM} are optimal for an general purpose in-cluster computing engine for the following reasons:
+    I strongly believe that Apache Spark offers an ideal environment for gitting GAMs for large data sets. Spark itself offers high-level APIs for R, Pyhton and Scala. Implementing the suggested methods in Scala would allow them to be used in all three languages. The optimizations suggested by \cite{bigdataGAM} are optimal for an general purpose in-cluster computing engine for the following reasons:
     \begin{itemize}
         \item The iterative nature of PIRLS is optimal for Spark's in memory computing.
         \item Spark's high level RDD allows for a flexible data structure to implement the suggested methods.
@@ -251,16 +258,13 @@
             \toprule
             CW & thesis work \\
             \midrule
-            45  & Develop a deep theoretical unterstanding of GAMs and used methods \\
-            46  & Develop a deep theoretical unterstanding of GAMs and used methods \\
-            47  & Develop a deep theoretical unterstanding of GAMs and used methods \\
-            48  & Set up an Apache Spark Environment \\
-            49  & Start implementing matrix decompositions with Breeze in Apache Spark \\
-            50  & Continue implementing matrix decompositions \\
-            51  & Winter break \\
+            48  & Develop a deep theoretical unterstanding relevant linear algebra  \\
+            49  & Develop a deep theoretical unterstanding ofrelevant linear algebra  \\
+            50  & Develop a deep theoretical unterstanding of GAMs and relevant linear algebra methods  \\
+            51  & Develop a deep theoretical unterstanding of GAMs and relevant linear algebra methods  \\
             52  & Winter break \\
-            1  & Implementation and Exams \\
-            2  & Implementation and Exams \\
+            1  & Implementation of matrix decomposition and Exams \\
+            2  & Implementation of spliine fitting and Exams \\
             3  & Implementation and Exams \\
             4  & Implementation and Exams \\
             5  & Post Exams Break \\
