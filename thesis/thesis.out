@@ -1,0 +1,24 @@
+\BOOKMARK [1][-]{section.1}{Linear models}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{Introduction to linear models}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{Example of a linear model}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{Ordinary least square estimation of }{section.1}% 4
+\BOOKMARK [2][-]{subsection.1.4}{Gauss-Markov Theorem}{section.1}% 5
+\BOOKMARK [2][-]{subsection.1.5}{Estimation of "0362 by orthogonal decomposition}{section.1}% 6
+\BOOKMARK [2][-]{subsection.1.6}{Geomoery of linear models}{section.1}% 7
+\BOOKMARK [1][-]{section.2}{Generalized Linear Models}{}% 8
+\BOOKMARK [2][-]{subsection.2.1}{Introduction to Generalized Linear Models}{section.2}% 9
+\BOOKMARK [2][-]{subsection.2.2}{Example of a Generalized Linear Models}{section.2}% 10
+\BOOKMARK [2][-]{subsection.2.3}{Maximum likelihood estimation}{section.2}% 11
+\BOOKMARK [2][-]{subsection.2.4}{Fitting generalized linear models}{section.2}% 12
+\BOOKMARK [2][-]{subsection.2.5}{Geomoery of Generalized Linear Models}{section.2}% 13
+\BOOKMARK [1][-]{section.3}{Generalized Additive Models}{}% 14
+\BOOKMARK [2][-]{subsection.3.1}{Introduction to Generalized Additive Models}{section.3}% 15
+\BOOKMARK [2][-]{subsection.3.2}{Generalized Additve Model example}{section.3}% 16
+\BOOKMARK [2][-]{subsection.3.3}{Smoothing Functions}{section.3}% 17
+\BOOKMARK [2][-]{subsection.3.4}{Regression Splines}{section.3}% 18
+\BOOKMARK [2][-]{subsection.3.5}{Smoothing Parameter estimation}{section.3}% 19
+\BOOKMARK [2][-]{subsection.3.6}{Fitting Generalized Additive Models}{section.3}% 20
+\BOOKMARK [1][-]{section.4}{Matrix Algebra}{}% 21
+\BOOKMARK [2][-]{subsection.4.1}{Orthogonal Matrices}{section.4}% 22
+\BOOKMARK [2][-]{subsection.4.2}{Cholesky decomposition}{section.4}% 23
+\BOOKMARK [2][-]{subsection.4.3}{QR decomposition}{section.4}% 24

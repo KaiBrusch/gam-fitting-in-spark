@@ -1,0 +1,174 @@
+\documentclass{article}
+
+% Latex Tutorial beginners: http://www.latex-tutorial.com/tutorials/beginners/
+\newcommand{\comment}[1]{}
+
+\newcommand{\note}[1]{{\tiny (#1)}}
+
+% Packages explained - Adding more functions to LATEX http://www.latex-tutorial.com/tutorials/beginners/lesson-3/
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{textgreek}
+
+\usepackage[margin=1.3in]{geometry}
+
+% fügt die Literatur auch zum Inhaltsverzeichnis hinzu (ist so nicht default)
+\usepackage[nottoc,notlot,notlof,numbib]{tocbibind}
+
+% Adding a bibliography http://www.latex-tutorial.com/tutorials/beginners/lesson-7/
+\bibliographystyle{apalike}
+
+
+% Nested numbered enumerations, eg. 1.1, 1.2: http://tex.stackexchange.com/questions/78842/nested-enumeration-numbering
+\renewcommand{\labelenumii}{\theenumii}
+\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
+
+
+\title{
+    Fitting Generalized Additive Models for\\ very large datasets with Apache Spark \\[7pt]
+    \large Chapter Excerpt
+}
+\date{24.12.2015}
+\author{Kai Thomas Brusch}
+
+\begin{document}
+
+    \pagenumbering{arabic}
+
+    \maketitle
+
+    \paragraph{Summary}
+
+    This document contains the main introductory chapters for my bachelor thesis titled "Fitting General Additive Models for very large datasets with Apache Spark".
+
+    \paragraph{Contact} \texttt{kai.brusch@gmail.com}
+
+    \paragraph{Location} Hochschule für Angewandte Wissenschaften Hamburg
+    \paragraph{Department} Dept. Informatik
+    \paragraph{Examiner} Prof. Dr. Michael Köhler-Bußmeier
+    \paragraph{Second examiner} Dipl.-Math. Markus Schmaus
+
+    \newpage
+
+    \tableofcontents
+
+    \newpage
+
+    \section{Linear models}
+
+    \subsection{Introduction to linear models}
+    Linear models are statistical models in which an univariate response is modeled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables $y$, measured with the response variable x, and some unknown parameters $\beta$ plus an error term $\epsilon$, which must be estimated. This process is formally stated for a given row  $i$ of data as:
+
+    \begin{equation}  \label{linModel} y\textsubscript{i} = \beta x\textsubscript{i} + \varepsilon\textsubscript{i} \end{equation}
+
+    The are many choices for $\beta$ and finding the best possible $\beta$ stands at the heart of the following chapter. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science.
+
+    \subsection{Example of a linear model}
+    I am an example of a simple linear model. I explain some variable y as linear combination of a model matrix and an estimated coefficent.
+
+    \subsection{Ordinary least square estimation of $\beta$}
+
+    We are now looking at methods of finding $\beta$. Ideally we want to choose a $\beta$ that produces a line through our data points with minimal distance between our points and our estimated line. More precicely we are
+    looking to estimate a $\beta$ that minimizes the squared distance between an estimated $\beta$ times the given $x$ and $y$. We are squaring the distance to normalize negative and positive differences. This distance formaly describes as S:
+
+    \begin{equation} \label{sumSquares} \mathbf{S} =  \sum_{i=1}^{n}(y\textsubscript{i} - x\textsubscript{i}\beta)^{2} \end{equation}
+
+    The close our S gets to 0 the better our line fits the data. The  Markov-Gauss Theorem states that the minimization of S yields $\widehat{\beta}$ which is the best possible estimation for $b$. This shall be discussed n the next chapter.  \ref{linModel} represents the univariate case where y is explained with only one variable. The process of minimizing S is commonly refered to as ordinary least squares (OLS). This model can be extended to multiple independent variables yielding in a scalar matrix form.
+
+    \begin{equation}  \label{linMatrixModel} y =  \mathbf{X} \beta +\epsilon \end{equation}
+
+     The dependent  variable vector \textit{y} is the linear combination of model matrix \textit{X} and the vector of unknown parameter \textbeta. Finding the best possible estimator $\widehat{\beta}$ for \ref{linMatrixModel} is formalized stated as the minimal length of the distance between y and X\textbeta:
+
+    \begin{equation} \label{matrixLOSS} \left \| y - X\beta  \right \|^2 \end{equation}
+
+    There are generally two ways to think about estimating $\beta$. From the Calculus point of view we can see this as a minimization problem of a function with two parameters: $S$ and $\beta$. Hence we minimize S in respect to $\beta$ by taking the partial derivative.
+
+    \begin{equation} \label{partialDer} \frac{\partial S}{\partial \beta} = - \sum_{i=1}^{n} 2x_i(y_i-x_i\beta) \end{equation}
+
+    Rewriting \ref{partialDer} will yield:
+
+    \begin{equation}  - \sum_{i=1}^{n} 2x_i(y_i-x_i\widehat{\beta}) = 0  \end{equation}
+
+    \begin{equation} - \sum_{i=1}^{n} x_iy_i-\widehat{\beta} \sum_{i=1}^{n} x_i^2 = 0  \end{equation}
+
+    \begin{equation} \widehat{\beta} = \sum_{i=1}^{n} x_iy_i /\sum_{i=1}^{n} x_i^2 \end{equation}
+
+    Minimizing S w.r.t. $\beta$ is a theoretically reasonable approach to estimating $\beta$ but lacks practiality as WHYYYYYYY??????
+
+    Another way of estimating $\widehat{\beta}$ is to view this qutions from the Linear Algebra point of view. First we have to state finding $\beta$ as a matrix problem whichs results to asking what linear combination of our model matrix $X$ and our vector $\beta$ of unknown coefficents yields the vector of $y$.
+
+    \begin{equation} X\beta = y \end{equation}
+
+    If the model matrix $X$ would we be a symetic and invertible matrix we could solve this by elimination. Taking a closer look the model matrix $X$ for most applications in statistics we realize that relevant model matricies are exclusivly m x n matrix with m > n resulting in an underdetermined system of equation with no solution for $\beta$.
+
+
+    we can see our data as an underdetermined system of equations.
+
+    \subsection{Gauss-Markov Theorem}
+    What is so special about least squares? It is the best, unbiased estimation of $\beta$. This shall be shown!
+    \subsection{Estimation of $\widehat{\beta}$ by orthogonal decomposition}
+    Projection to orthogonal space to find $beta$.
+    \subsection{Geomoery of linear models}
+    Steal plots from GAM book
+
+    \section{Generalized Linear Models}
+    \subsection{Introduction to Generalized Linear Models}
+    Generalized linear models (GLMs) relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (normal, Poisson, Binomial, Gamma etc.). While OLS was sufficient for estimating $\beta$ for normal distributed data we have to generalize this notion to acount for an arbitrary amount of distribution parameters.
+    \subsection{Example of a Generalized Linear Models}
+    I am a GLM
+    \subsection{Maximum likelihood estimation}
+    OLS is not sufficent to account for the expotential family. MLE generalizes OLS to account for an fixed number of distribution parameters. We estimate those then.
+    \subsection{Fitting generalized linear models}
+    Penelized Iterative Reweighted Least Square estimation
+    \subsection{Geomoery of Generalized Linear Models}
+    Steal plots from GAM book
+
+    \section{Generalized Additive Models}
+    \subsection{Introduction to Generalized Additive Models}
+    Generalized Additive Models (GAMs) extends the GLM by specifying the linear prediction in terms of the summation of smooth functions. This allows for a more flexible modeling of the influence for each explanatory variable. The gained flexibility comes at the cost of additional questions concerning the smooth function:
+
+    GAMs are fomally described by the following equation:
+
+    \begin{equation} \label{GAM} g(\mu\textsubscript{i}) = \mathbf{X} \textsubscript{i} \Theta + f\textsubscript{1}(x\textsubscript{1i}) + f\textsubscript{2}(x\textsubscript{2i}) + f\textsubscript{3}(x\textsubscript{3i}, x\textsubscript{4i}) ... \end{equation}
+
+    \ref{GAM} explains $y_i$ as the model matrix for this row and the smooth functions $f_j(x_1j)$ of the x values for this row. $X_i$ is a row of the model matrix with parametric component $\theta$. Unlike the linear model we can now  specify a smooth function for each explanatory variable. This proves to be way more flexible than only allowing for a constant influence per explanatory variable. The natural question that arises now are: How do I find proper smoothing functions? Finding the right smooth function stands at the heart of GAM fitting and can be best illustrated in the univariate case \ref{univariateSmooth}.
+
+    \subsection{Generalized Additve Model example}
+    WOODS HELP ME!!!
+    \subsection{Smoothing Functions}
+     \begin{equation} \label{univariateSmooth} y_i = f(x_i) + \epsilon_i \end{equation}
+
+     Smooth functions form a vector space, which can be approximated using a linear basis.Only allowing linear basis allow us to heavily leverage the theory already developed for linear models and $S$ as the optimal model fit. For the sake of illustration we assume that \ref{univariateSmooth} can be rewriten as the following equation if $b_i(x)$ is the $ith$ basis function:
+
+    \begin{equation} \label{smoothBase} f(x) = \sum_{i=1}^{q} b\textsubscript{i} (x) \beta \textsubscript{i} \end{equation}
+
+    In \ref{smoothBase} we already know $f()$ is linear in regard to \ref{smoothBase}. We now have to specify a basis function to represent $bi$. We can choose from many basis functions for $bi$, each with advantages and disadvantages. A common choice however is a fourth order polynomial basis function. \ref{smoothBase} represented by a fourth order polynomial yields the following model:
+
+    \begin{equation} \label{poly4th} f(x) = \beta \textsubscript{1} + x\beta \textsubscript{2} + x^2\beta \textsubscript{3} + x^3\beta \textsubscript{4} + x^4\beta \textsubscript{5}  \end{equation}
+
+    Applying \ref{poly4th} to \ref{univariateSmooth} we get the modeling of $y_i$ as the sum of smoothing functions.
+
+    \begin{equation} \label{poly4thGAM}  y_i = \beta_1 + x_i\beta_2 + x_i^2\beta_3+ x_i^3\beta_4 + x_i^4\beta_5 + \epsilon_i \end{equation}
+    \subsection{Regression Splines}
+    \subsection{Smoothing Parameter estimation}
+    \subsection{Fitting Generalized Additive Models}
+
+    \section{Matrix Algebra}
+    \subsection{Orthogonal Matrices}
+    We are concerned with matrices that do have orthogonal column vectors
+    \subsection{Cholesky decomposition}
+    We want to decompose a matrix A in two parts
+    \subsection{QR decomposition}
+    We want to decompose a matrix A in two parts, one orthonormal and one upper triangular, X = QR
+
+
+    \newpage
+
+    \bibliography{thesis}    % reference to thesis.bib
+
+    \newpage
+
+\end{document}
