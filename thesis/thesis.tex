@@ -60,7 +60,7 @@
     \section{Linear models}
 
     \subsection{Introduction to linear models}
-    Linear models are statistical models in which an univariate response is modeled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables $y$, measured with the response variable x, and some unknown parameters $\beta$ plus an error term $\epsilon$, which must be estimated. This process is formally stated for a given row  $i$ of data as:
+    Linear models are statistical models in which an univariate response is modeled as the sum of a ‘linear predictor’ and a zero mean random error term. The linear predictor depends on some predictor variables $y$, measured with the response variable x, and some unknown parameters $\beta$ plus an error term $\epsilon$, which must be estimated. This process is formally stated for a given row  $i$ of data as: \cite{gamBook} \cite{bigdataGAM} \cite{spark}
 
     \begin{equation}  \label{linModel} y\textsubscript{i} = \beta x\textsubscript{i} + \varepsilon\textsubscript{i} \end{equation}
 
@@ -77,7 +77,7 @@
 
     The close our S gets to 0 the better our line fits the data. The  Markov-Gauss Theorem states that the minimization of S yields $\widehat{\beta}$ which is the best possible estimation for $\beta$. This shall be discussed n the next chapter. \ref{linModel} represents the univariate case where y is explained with only one variable. The process of minimizing S is commonly refered to as ordinary least squares (OLS).
 
-    There are two ways to think about estimating $\beta$, thinking off OLS in terms of calulus on functions allows us to compute $\widehat{\beta}$ for the univariate case while computing $\widehat{\beta}$ for multiple independant variables requires linear algebra. From the calculus perspective we can see OLS as function with two parameters: $S$ and $\beta$. Minimizing S equates to taking the partial derivative of $S$ with repsect to $\beta$. This is the most common approach and offers insight by statis as S as the following:
+    There are two ways to think about estimating $\beta$, thinking off OLS in terms of calulus on functions allows us to compute $\widehat{\beta}$ for the univariate case while computing $\widehat{\beta}$ for multiple independant variables requires linear algebra. From the calculus perspective we can see OLS as function with two parameters: $S$ and $\beta$. Minimizing S equates to taking the partial derivative of $S$ with repsect to $\beta$. This is the most common approach and offers insight by stating S as the following equation:
 
     \begin{equation} \label{partialDer} \frac{\partial S}{\partial \beta} = - \sum_{i=1}^{n} 2x_i(y_i-x_i\beta) \end{equation}
 
@@ -94,17 +94,24 @@
 
     \begin{equation} \label{matrix} X\beta = y \end{equation}
 
-    Now that we have restated OLS as a matrix problem we can apply some linear algebra to find $\widehat{\beta}$. First we can restate the problem of finding $\beta$ as finding the unkown vector $\beta$ equates to finding a linear combination of our column vectors of $X$ with $\beta$ that result in $y$. Finding this linear combination is highly dependant on the properties of $X$. Taking a look at relevant model matricies $X$ will show that they almost exclusively consist of m rows and n columns with m > n. Being m > n implies that the matrix is not symetric and not invertible. Given that $X$ has more rows than columns we can think of $X\beta = y$ as a system of equations with more equations than variables which causes this sytem of equation to have no solution. While the nature of $X$ makes finding $\beta$ impossible we can find an estimation $\widehat{\beta}$ of $\beta$ eploying the same measure S used in the univariate case. Finding $\widehat{\beta}$ involves rewriting of \ref{matrix} to a form that accounts for the introduced error. Before describing how to find $\widehat{\beta}$ we have to illustrate why we cannot find $\beta$ with \ref{matrix}. If the matrix $X$ would be symetric and invertible  By projecting $\beta$ into the column space of $X$ yielding in $\widehat{\beta}$. The proper projection $p$ is defined as $p = X\widehat{\beta}$. The process of projecting of finding the projection involves multiplying by the transpose of the model matrix yielding: $X^T X \widehat{\beta} = X^T y $. The projection leaves us with an invertible
+    Now that we have restated OLS as a matrix problem we can apply some linear algebra to find $\widehat{\beta}$. First we can restate the problem of finding $\beta$ as finding the unkown vector $\beta$ equates to finding a linear combination of our column vectors of $X$ with $\beta$ that result in $y$. Finding this linear combination is highly dependant on the properties of $X$. Taking a look at relevant model matricies $X$ will show that they almost exclusively consist of m rows and n columns with m > n. Being m > n implies that the matrix is not symetric and not invertible. Given that $X$ has more rows than columns we can think of $X\beta = y$ as a system of equations with more equations than variables which causes this sytem of equation to have no solution. We have to stress the fact that the sytem of equations of \ref{matrix} does not have a solution because there is no possible selecton for $\beta$ that lies in the column vector space of $X$. Whilst the nature of $X$ makes finding $\beta$ impossible we can find an estimation $\widehat{\beta}$ of $\beta$ by projecting it back into the column space of $X$. This projection comes however at the cost of an error term:
 
     \begin{equation} y = X\widehat{\beta} + \epsilon  \end{equation}
-    \begin{equation} \epsilon = y-X\beta \end{equation}
+    \begin{equation} \epsilon = y-X\widehat{\beta} \end{equation}
+
+    The proper projection $p$ is defined as $p = X\widehat{\beta}$. The process of projecting of finding the projection involves multiplying by the transpose of the model matrix yielding:
+
+    \begin{equation} X^T X \widehat{\beta} = X^T y  \end{equation}
+
+    The projection leaves us with an invertible matrix that can be solved by usual elimination.
+
 
 
 
 
     \subsection{Gauss-Markov Theorem}
     What is so special about least squares? It is the best, unbiased estimation of $\beta$. This shall be shown!
-    \subsection{Estimation of $\widehat{\beta}$ by orthogonal decomposition}
+    \subsection{Estimating $\widehat{\beta}$ with orthogonal decomposition}
     Projection to orthogonal space to find $beta$.
     \subsection{Geomoery of linear models}
     Steal plots from GAM book
