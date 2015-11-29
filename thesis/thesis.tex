@@ -71,24 +71,17 @@
 
     \subsection{Ordinary least square estimation of $\beta$}
 
-    We are now looking at methods of finding $\beta$. Ideally we want to choose a $\beta$ that produces a line through our data points with minimal distance between our points and our estimated line. More precicely we are
-    looking to estimate a $\beta$ that minimizes the squared distance between an estimated $\beta$ times the given $x$ and $y$. We are squaring the distance to normalize negative and positive differences. This distance formaly describes as S:
+    We are now looking at methods of finding $\beta$. Ideally we want to choose a $\beta$ that produces a line through our data points with minimal distance between our points and our estimated line. More precicely we are looking to estimate a $\beta$ that minimizes the squared distance between an estimated $\beta$ times the given $x$ and $y$. We are squaring the distance to normalize negative and positive differences. This distance formaly describes as S:
 
     \begin{equation} \label{sumSquares} \mathbf{S} =  \sum_{i=1}^{n}(y\textsubscript{i} - x\textsubscript{i}\beta)^{2} \end{equation}
 
-    The close our S gets to 0 the better our line fits the data. The  Markov-Gauss Theorem states that the minimization of S yields $\widehat{\beta}$ which is the best possible estimation for $b$. This shall be discussed n the next chapter.  \ref{linModel} represents the univariate case where y is explained with only one variable. The process of minimizing S is commonly refered to as ordinary least squares (OLS). This model can be extended to multiple independent variables yielding in a scalar matrix form.
+    The close our S gets to 0 the better our line fits the data. The  Markov-Gauss Theorem states that the minimization of S yields $\widehat{\beta}$ which is the best possible estimation for $\beta$. This shall be discussed n the next chapter. \ref{linModel} represents the univariate case where y is explained with only one variable. The process of minimizing S is commonly refered to as ordinary least squares (OLS).
 
-    \begin{equation}  \label{linMatrixModel} y =  \mathbf{X} \beta +\epsilon \end{equation}
-
-     The dependent  variable vector \textit{y} is the linear combination of model matrix \textit{X} and the vector of unknown parameter \textbeta. Finding the best possible estimator $\widehat{\beta}$ for \ref{linMatrixModel} is formalized stated as the minimal length of the distance between y and X\textbeta:
-
-    \begin{equation} \label{matrixLOSS} \left \| y - X\beta  \right \|^2 \end{equation}
-
-    There are generally two ways to think about estimating $\beta$. From the Calculus point of view we can see this as a minimization problem of a function with two parameters: $S$ and $\beta$. Hence we minimize S in respect to $\beta$ by taking the partial derivative.
+    There are two ways to think about estimating $\beta$, thinking off OLS in terms of calulus on functions allows us to compute $\widehat{\beta}$ for the univariate case while computing $\widehat{\beta}$ for multiple independant variables requires linear algebra. From the calculus perspective we can see OLS as function with two parameters: $S$ and $\beta$. Minimizing S equates to taking the partial derivative of $S$ with repsect to $\beta$. This is the most common approach and offers insight by statis as S as the following:
 
     \begin{equation} \label{partialDer} \frac{\partial S}{\partial \beta} = - \sum_{i=1}^{n} 2x_i(y_i-x_i\beta) \end{equation}
 
-    Rewriting \ref{partialDer} will yield:
+    Rewriting the partial dereviative to yiel $\widehat{\beta}$ gives a very good idea of $\beta$
 
     \begin{equation}  - \sum_{i=1}^{n} 2x_i(y_i-x_i\widehat{\beta}) = 0  \end{equation}
 
@@ -96,16 +89,18 @@
 
     \begin{equation} \widehat{\beta} = \sum_{i=1}^{n} x_iy_i /\sum_{i=1}^{n} x_i^2 \end{equation}
 
-    Minimizing S w.r.t. $\beta$ is a theoretically reasonable approach to estimating $\beta$ but lacks practiality as WHYYYYYYY??????
 
-    Another way of estimating $\widehat{\beta}$ is to view this qutions from the Linear Algebra point of view. First we have to state finding $\beta$ as a matrix problem whichs results to asking what linear combination of our model matrix $X$ and our vector $\beta$ of unknown coefficents yields the vector of $y$.
+    Minimizing S w.r.t. $\beta$ to compute $\widehat{\beta}$ is a reasonable approach when dealing with one independant variable. However, almost all relevant applications involve much more than one independant variable and require linear algebra. To estimate $\widehat{\beta}$ with OLS for multiple independant variables involves rephrasing the questions in terms of linear algebra. First we have to state the process of finding $\beta$ as a linear combination problem whichs equates to asking what linear combination of column vectors of our model matrix $X$ and our vector $\beta$ of unknown coefficents yields the vector of $y$. Formally:
 
-    \begin{equation} X\beta = y \end{equation}
+    \begin{equation} \label{matrix} X\beta = y \end{equation}
 
-    If the model matrix $X$ would we be a symetic and invertible matrix we could solve this by elimination. Taking a closer look the model matrix $X$ for most applications in statistics we realize that relevant model matricies are exclusivly m x n matrix with m > n resulting in an underdetermined system of equation with no solution for $\beta$.
+    Now that we have restated OLS as a matrix problem we can apply some linear algebra to find $\widehat{\beta}$. First we can restate the problem of finding $\beta$ as finding the unkown vector $\beta$ equates to finding a linear combination of our column vectors of $X$ with $\beta$ that result in $y$. Finding this linear combination is highly dependant on the properties of $X$. Taking a look at relevant model matricies $X$ will show that they almost exclusively consist of m rows and n columns with m > n. Being m > n implies that the matrix is not symetric and not invertible. Given that $X$ has more rows than columns we can think of $X\beta = y$ as a system of equations with more equations than variables which causes this sytem of equation to have no solution. While the nature of $X$ makes finding $\beta$ impossible we can find an estimation $\widehat{\beta}$ of $\beta$ eploying the same measure S used in the univariate case. Finding $\widehat{\beta}$ involves rewriting of \ref{matrix} to a form that accounts for the introduced error. Before describing how to find $\widehat{\beta}$ we have to illustrate why we cannot find $\beta$ with \ref{matrix}. If the matrix $X$ would be symetric and invertible  By projecting $\beta$ into the column space of $X$ yielding in $\widehat{\beta}$. The proper projection $p$ is defined as $p = X\widehat{\beta}$. The process of projecting of finding the projection involves multiplying by the transpose of the model matrix yielding: $X^T X \widehat{\beta} = X^T y $. The projection leaves us with an invertible
+
+    \begin{equation} y = X\widehat{\beta} + \epsilon  \end{equation}
+    \begin{equation} \epsilon = y-X\beta \end{equation}
 
 
-    we can see our data as an underdetermined system of equations.
+
 
     \subsection{Gauss-Markov Theorem}
     What is so special about least squares? It is the best, unbiased estimation of $\beta$. This shall be shown!
