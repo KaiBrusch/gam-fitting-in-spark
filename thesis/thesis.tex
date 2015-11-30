@@ -42,7 +42,7 @@
 
     \paragraph{Summary}
 
-    This document contains the main introductory chapters for my bachelor thesis titled "Fitting General Additive Models for very large datasets with Apache Spark".
+    This document contains three introductory chapters for my bachelor thesis titled "Fitting General Additive Models for very large datasets with Apache Spark".
 
     \paragraph{Contact} \texttt{kai.brusch@gmail.com}
 
@@ -94,25 +94,42 @@
 
     \begin{equation} \label{matrix} X\beta = y \end{equation}
 
-    Now that we have restated OLS as a matrix problem we can apply some linear algebra to find $\widehat{\beta}$. First we can restate the problem of finding $\beta$ as finding the unkown vector $\beta$ equates to finding a linear combination of our column vectors of $X$ with $\beta$ that result in $y$. Finding this linear combination is highly dependant on the properties of $X$. Taking a look at relevant model matricies $X$ will show that they almost exclusively consist of m rows and n columns with m > n. Being m > n implies that the matrix is not symetric and not invertible. Given that $X$ has more rows than columns we can think of $X\beta = y$ as a system of equations with more equations than variables which causes this sytem of equation to have no solution. We have to stress the fact that the sytem of equations of \ref{matrix} does not have a solution because there is no possible selecton for $\beta$ that lies in the column vector space of $X$. Whilst the nature of $X$ makes finding $\beta$ impossible we can find an estimation $\widehat{\beta}$ of $\beta$ by projecting it back into the column space of $X$. This projection comes however at the cost of an error term:
+    Now that we have restated OLS as a matrix problem we can apply some linear algebra to find $\widehat{\beta}$. First we can restate the problem of finding $\beta$ as finding the unkown vector $\beta$ equates to finding a linear combination of our column vectors of $X$ with $\beta$ that result in $y$. Finding this linear combination is highly dependant on the properties of $X$. Taking a look at relevant model matricies $X$ will show that they almost exclusively consist of m rows and n columns with $m > n$. Being $m > n$ implies that the matrix is not symetric and not invertible. Given that $X$ has more rows than columns we can think of $X\beta = y$ as a system of equations with more equations than variables which causes this sytem of equation to have no solution. We have to stress the fact that the sytem of equations of \ref{matrix} does not have a solution because there is no possible selecton for $\beta$ that lies in the column vector space of $X$. Whilst the nature of $X$ makes finding $\beta$ impossible we can find an estimation $\widehat{\beta}$ of $\beta$ by projecting it back into the column space of $X$.  The solution becomes to multiply by $A^T$The proper projection $p$ is defined as $p = X\widehat{\beta}$. The process of projecting of finding the projection involves multiplying by the transpose of the model matrix yielding:
+
+    \begin{equation} X^T X \widehat{\beta} = X^T y  \end{equation}
+
+    This projection comes however at the cost of an error term:
 
     \begin{equation} y = X\widehat{\beta} + \epsilon  \end{equation}
     \begin{equation} \epsilon = y-X\widehat{\beta} \end{equation}
 
-    The proper projection $p$ is defined as $p = X\widehat{\beta}$. The process of projecting of finding the projection involves multiplying by the transpose of the model matrix yielding:
+    The questions that now arises is: how to we make $\epsilon = y-X\widehat{\beta}$ as small as possible? Using algebra we can split the vector $\beta$ into two parts. One part in the column space is our projection $p$ and the perpendiclar part in the nullspace of $A^T$ which the $\epsilon$. It is essential to remember that the column space is always perpendicular to the nullspace of $A^T$. The solution to $X\beta = p$ leaves the least possible error $\epsilon$, returning to the previously stated method of least squares, but this time in the world of linear algebra:
 
-    \begin{equation} X^T X \widehat{\beta} = X^T y  \end{equation}
+
+     \begin{equation} \left \| X\beta -y \right \|^2 = \left \| X\beta - p \right \|^2 + \left \| \epsilon \right \|^2 \end{equation}
+
+     This is the law $c^2 = a^2 + b^2$ for a right angle. The vector $X\beta-p$ in the column space is perpendicular to $\epsilon$ in the nullspace of $A^T$. We reduce $X\beta-p$ to zero choosing $\beta$ to be $\widehat{\beta}$, this leaves us with the smallest possible error vector $\epsilon$.
 
     The projection leaves us with an invertible matrix that can be solved by usual elimination.
 
-
+    The least squares solution $\widehat{\beta}$ makes $\epsilon = X\beta$ as small as possible.
 
 
 
     \subsection{Gauss-Markov Theorem}
     What is so special about least squares? It is the best, unbiased estimation of $\beta$. This shall be shown!
     \subsection{Estimating $\widehat{\beta}$ with orthogonal decomposition}
-    Projection to orthogonal space to find $beta$.
+    The previously suggested method lends a great tool to think about the univariate least squares technique. But the suggested methods is rarely applied
+    Any m by n matrix X with independant columns can be factored into QR. The m by n matrix Q has orthonormal columns and the square matrix R is upper triangular with positive diagonal. $X^T X$ equals $R^T Q^T QR = R^T R$ simplifying the leas squares equation to $Rx = Q^T \beta$; allowing us to multiply by $R^T$ instead of $X^T$ for form the square matrix.  This additional simplicity allows us to restate the problem of least squares for matrices using QR decomposition as:
+
+    \begin{equation} R^T R \widehat{\beta} = R^TQ^T y  \ or \   R\widehat{\beta}=Q^T y \ or \  \widehat{\beta} = R^{-1} Q^T y \end{equation}
+
+    A very important property of orthogonal matrices is that their multiplication with a  vector is ideponent with respect to the lenght of the vector.
+
+    Isteat of multipliying with a fully formed model matrix X we only multiply with small subset, thus reducing the amount of mulipilications and memory requirements drasticaly.
+
+    The QR decomposition is formally stated in the appendix and will appear as an essential part later in this thesis.
+
     \subsection{Geomoery of linear models}
     Steal plots from GAM book
 
@@ -160,9 +177,7 @@
 
     \section{Matrix Algebra}
     \subsection{Orthogonal Matrices}
-    We are concerned with matrices that do have orthogonal column vectors
-    \subsection{Cholesky decomposition}
-    We want to decompose a matrix A in two parts
+    We are concerned with matrices that do have orthogonal column vectors, severly concerned
     \subsection{QR decomposition}
     We want to decompose a matrix A in two parts, one orthonormal and one upper triangular, X = QR
 
