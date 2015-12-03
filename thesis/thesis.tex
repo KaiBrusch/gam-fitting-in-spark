@@ -12,6 +12,8 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{textgreek}
+\usepackage{listings}
+\usepackage{graphicx}
 
 \usepackage[margin=1.3in]{geometry}
 
@@ -64,10 +66,37 @@
 
     \begin{equation}  \label{linModel} y\textsubscript{i} = \beta x\textsubscript{i} + \varepsilon\textsubscript{i} \end{equation}
 
-    The are many choices for $\beta$ and finding the best possible $\beta$ stands at the heart of the following chapter. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science.
+    The are many choices for $\beta$ and finding the best possible $\beta$ stands at the heart of the following chapter. A key feature of linear models is that the linear predictor depends linearly on these parameters. Statistical inference with such models is usually based on the assumption that the response variable has a normal distribution. Linear models are used widely in most branches of science and an example is given in the next section.
 
     \subsection{Example of a linear model}
-    I am an example of a simple linear model. I explain some variable y as linear combination of a model matrix and an estimated coefficent.
+    Before describing the relevant theory I would like to give an example of a simple linear model. Lets say we have a data set called mtcars thats describes cars with respect to miles per galon (mpg) and horse power(hp). After careful thought and the examination of a scatter plot I believe that there is a linear relation ship between the the miles per galon and the horse power of a car. I also believe that miles per gallon follow normal distribution. I would try to explain the relationship between hp and mpg as a linear model takes miles per galon as the dependant variable and horse power as the independant variable. This model decription written in R yields the following line of code:
+
+    \begin{lstlisting}[language=R]
+    model <- lm(data=mtcars,hp ~ mpg)
+
+    summary(model)
+    \end{lstlisting}
+
+    The summary gives me the estimated model and we can see the slope and the insect of function explaining the relationship between dependant and independant variable:
+    \begin{lstlisting}[language=R]
+    Call:
+    lm(formula = hp ~ mpg, data = mtcars)
+
+    Coefficients:
+    (Intercept)          mpg
+       297.688       -8.022
+    \end{lstlisting}
+
+    Our model describes hp power as $-8.022*mpg +\ 297.688$. We can see that the more hp a car has the fewer mpg does it offer. The red line in the plot is our estimated function that illustrates the estimated model
+
+    \begin{figure}[ht]
+    \centering
+        \includegraphics[width=.5\textwidth]{linplot.png}
+        \caption{$-8.022*mpg +\ 297.688$}
+    \label{fig1}
+    \end{figure}
+
+    The natural question that arises is: how to we estimate the line and the error of the chart above? The relevant method is called ordinary least squares and will be introduced in the next section.
 
     \subsection{Ordinary least square estimation of $\beta$}
 
@@ -108,16 +137,14 @@
 
      \begin{equation} \left \| X\beta -y \right \|^2 = \left \| X\beta - p \right \|^2 + \left \| \epsilon \right \|^2 \end{equation}
 
-     This is the law $c^2 = a^2 + b^2$ for a right angle. The vector $X\beta-p$ in the column space is perpendicular to $\epsilon$ in the nullspace of $A^T$. We reduce $X\beta-p$ to zero choosing $\beta$ to be $\widehat{\beta}$, this leaves us with the smallest possible error vector $\epsilon$.
-
-    The projection leaves us with an invertible matrix that can be solved by usual elimination.
-
-    The least squares solution $\widehat{\beta}$ makes $\epsilon = X\beta$ as small as possible.
+     This is the law $c^2 = a^2 + b^2$ for a right angle. The vector $X\beta-p$ in the column space is perpendicular to $\epsilon$ in the nullspace of $A^T$. We reduce $X\beta-p$ to zero choosing $\beta$ to be $\widehat{\beta}$, this leaves us with the smallest possible error vector $\epsilon$. The projection leaves us with an invertible matrix that can be solved by usual elimination. The least squares solution $\widehat{\beta}$ makes $\epsilon = X\beta$ as small as possible.
 
 
 
     \subsection{Gauss-Markov Theorem}
-    What is so special about least squares? It is the best, unbiased estimation of $\beta$. This shall be shown!
+    So far we have introduced two different methods on how to estimate $\beta$. The calculus way for univariate data and the linear algebra way for multivariate data, both estimated $\beta$ with an approximate $\widehat{beta}$ which seeks to minimize the squared error of actual and estimate. While squared error seems like the an obvious choice we have no formal reason to prefer it to other measures . This section will lay out the formal proof that shows why $\widehat{\beta}$ is the best possible estimator.\cite{gamBook} states that there exists no estimator with lower variance than least squares estimation. The
+
+
     \subsection{Estimating $\widehat{\beta}$ with orthogonal decomposition}
     The previously suggested method lends a great tool to think about the univariate least squares technique. But the suggested methods is rarely applied
     Any m by n matrix X with independant columns can be factored into QR. The m by n matrix Q has orthonormal columns and the square matrix R is upper triangular with positive diagonal. $X^T X$ equals $R^T Q^T QR = R^T R$ simplifying the leas squares equation to $Rx = Q^T \beta$; allowing us to multiply by $R^T$ instead of $X^T$ for form the square matrix.  This additional simplicity allows us to restate the problem of least squares for matrices using QR decomposition as:
@@ -126,19 +153,24 @@
 
     A very important property of orthogonal matrices is that their multiplication with a  vector is ideponent with respect to the lenght of the vector.
 
-    Isteat of multipliying with a fully formed model matrix X we only multiply with small subset, thus reducing the amount of mulipilications and memory requirements drasticaly.
+    Instead of multipliying with a fully formed model matrix X we only multiply with small subset, thus reducing the amount of mulipilications and memory requirements drasticaly.
 
     The QR decomposition is formally stated in the appendix and will appear as an essential part later in this thesis.
 
-    \subsection{Geomoery of linear models}
-    Steal plots from GAM book
 
     \section{Generalized Linear Models}
     \subsection{Introduction to Generalized Linear Models}
-    Generalized linear models (GLMs) relax the strict linearity assumption of linear models, by allowing the expected value of the response to depend on a smooth monotonic function of the linear predictor. Similarly the assumption that the response is normally distributed is relaxed by allowing it to follow any distribution from the exponential family (normal, Poisson, Binomial, Gamma etc.). While OLS was sufficient for estimating $\beta$ for normal distributed data we have to generalize this notion to acount for an arbitrary amount of distribution parameters.
+    \cite{gamBook} describes Generalized Linear Models (GLMs) as an extension of the general linear model with the ability to model more expotential family response disributions. While linear models with OLS estimation only allow for a normal distributed response, GLMs allows to model the reponse variable from any arbitrary expotential family. The expotential family of distributions contains many distibutions that are very useful for pracical model. A formal description of it's basis structure can be given as
+
+        \begin{equation} g(\mu_i) = X_i \beta_i \end{equation}
+
+
+    Where $\mu_i \equiv E(Y_i)$ and $Y_i$ is distibuted according to some expotential family. Its members include but are not limited to Poisson, Bionomial, Gamma and Normal Distributions. Every expotential family distribution has a link function g(). $X_i$ is the $i^th$ row of a model matrix X and $\beta$ is a vector of unknowns parameters. The link functions allows us to model an expotential function ins terms of a linear link function. To account for expotential familty distributions comes at a cost however: while OLS was sufficient for estimating $\beta$ for normal distributed data now have to generalize this notion to acount for an arbitrary amount of distribution parameters. The generalization of OLS is called maximum likelihood estimation (MLE) and involves an iterative method called iterative re-weighted least squares (IRLS). An important practical feature of generalized linear models is that they can all be fit to data using IRLS, independant of response variable distribution.
+
     \subsection{Example of a Generalized Linear Models}
-    I am a GLM
+    Other than
     \subsection{Maximum likelihood estimation}
+
     OLS is not sufficent to account for the expotential family. MLE generalizes OLS to account for an fixed number of distribution parameters. We estimate those then.
     \subsection{Fitting generalized linear models}
     Penelized Iterative Reweighted Least Square estimation
