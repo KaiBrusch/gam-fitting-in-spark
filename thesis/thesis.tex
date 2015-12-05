@@ -160,21 +160,44 @@
 
     \section{Generalized Linear Models}
     \subsection{Introduction to Generalized Linear Models}
-    \cite{gamBook} describes Generalized Linear Models (GLMs) as an extension of the general linear model with the ability to model more expotential family response disributions. While linear models with OLS estimation only allow for a normal distributed response, GLMs allows to model the reponse variable from any arbitrary expotential family. The expotential family of distributions contains many distibutions that are very useful for pracical model. A formal description of it's basis structure can be given as
+    \cite{glmnelder} describes Generalized Linear Models (GLMs) as an extension of the general linear model with the ability to model more expotential family response disributions. While linear models with OLS estimation only allow for a normal distributed response, GLMs allows to model the reponse variable from any arbitrary expotential family. The expotential family of distributions contains many pratical useful distibutions. A formal description of it's basis structure can be given as
 
         \begin{equation} g(\mu_i) = X_i \beta_i \end{equation}
 
 
-    Where $\mu_i \equiv E(Y_i)$ and $Y_i$ is distibuted according to some expotential family. Its members include but are not limited to Poisson, Bionomial, Gamma and Normal Distributions. Every expotential family distribution has a link function g(). $X_i$ is the $i^th$ row of a model matrix X and $\beta$ is a vector of unknowns parameters. The link functions allows us to model an expotential function ins terms of a linear link function. To account for expotential familty distributions comes at a cost however: while OLS was sufficient for estimating $\beta$ for normal distributed data now have to generalize this notion to acount for an arbitrary amount of distribution parameters. The generalization of OLS is called maximum likelihood estimation (MLE) and involves an iterative method called iterative re-weighted least squares (IRLS). An important practical feature of generalized linear models is that they can all be fit to data using IRLS, independant of response variable distribution.
+    Where $\mu_i \equiv E(Y_i)$ and $Y_i$ is distibuted according to some expotential family. Its members include but are not limited to Poisson, Bionomial, Gamma and Normal Distributions. Every expotential family distribution has a link function g().The idea here is that linear functions of the predictor variables are obtained by transforming the right side of the equation ( f(x) ) by a link function.  The data are then fit in this transformed scale (using an iterative routine based on least squares), but the expected variance is calculated on the original scale of the predictor variables. $X_i$ is the $i^th$ row of a model matrix X and $\beta$ is a vector of unknowns parameters. The link functions allows us to model an expotential function ins terms of a linear link function. To account for expotential familty distributions comes at a cost however: While OLS was sufficient for estimating $\beta$ for normal distributed data now have to generalize this notion to acount for an arbitrary amount of distribution parameters. The generalization of OLS is called maximum likelihood estimation (MLE) and involves an iterative method called iterative re-weighted least squares (IRLS). An important practical feature of generalized linear models is that they can all be fit to data using IRLS, independant of response variable distribution. A further layer of complexity is the error term now has varying variance, our estimations and inference needs weight the likelihood accordingly.
 
     \subsection{Example of a Generalized Linear Models}
-    MODEL SOME STUFF BASED ON SOME STUFF
+    Examples for generalized linear models are found in many fields of science. Allowing the reponse to be distributed to poisson or binomial dsitributions allow to model many pracitical aplications. Let us consider an example of a poisson distributed reponse. Poisson distributions are most commonly used to model the number of occurences of a given event. Lets say we want to discover the relationship between smoking tabaco und number of death for a given age group drawn from a random population. We are given a data set that desribes a random sample in terms of age range, deaths and a categorial desription of the smoking habit. The age groups are non-overlaping five year spans starting at 40. The smoking habit is categoriesed as ("no", "cigarPipeOnly", "cigarrettePlus", "cigarretteOnly") We can use the given data to produce a model that models the number of deaths as a function of smoking habit and age group. The model we are trying to build can be best described with the following R code snipped:
+
+    \begin{lstlisting}[language=R]
+    Call:  glm(formula = dead ~ +0 + as.factor(smoke) + as.factor(age),
+    family = poisson(link = "log"), data = data)
+
+    Coefficients:
+    as.factor(smoke)cigarPipeOnly  as.factor(smoke)cigarretteOnly
+                        3.5088                          4.6131
+    as.factor(smoke)cigarrettePlus              as.factor(smoke)no
+                        4.8864                          3.2702
+           as.factor(age)45-59             as.factor(age)50-54
+                        0.1340                          0.3163
+           as.factor(age)55-59             as.factor(age)60-64
+                        1.3956                          1.9252
+           as.factor(age)65-69             as.factor(age)70-74
+                        1.8867                          1.5894
+           as.factor(age)75-79               as.factor(age)80+
+                        1.1377                          0.7576
+    \end{lstlisting}
+
+    The estimated coefficients paint a clear picture: Less deaths occur in non-smoking groups.A little more for cigar pipe only smokers and many more for cigaretter smokers, indeferent to frequency. However, the coefficent interpretation should be secondary in the example and focus should on the model description. A Poisson distribution need only one parameter thus we only supply the number of death occured. The have to apply the link function in the right side of our equation, yielding in the following model description $Poisson(dead) = Constant + log(smoke) + log(age)$. We can see that used a GLM model with death as the reponse and specified the expotential family and its link. Taking a look at the variance of the
+
+
     \subsection{Maximum likelihood estimation}
-    Parameter estimation stands at the heart of all statistical models. Random variables and their distribution allows us to explain a variables behavior based on their parameters. Once a model is specified with its parameters, and data have been collected, one is in a position to evaluate its goodness of fit, that is, how well it fits the observed data. Goodness of fit is assessed by finding parameter values of a model that best fits the data procedure called parameter estimation.The OLS linear model estimated the $\mu$ and $\sigma$ for $N( \mu ,\sigma^2)$ by minimizing $S$. This method of parameter estimation is specific to a normal distributed response and needs to be generalized to account for expotential family distributions. Expotential family distributions have diffent number of parameters and parameter meaning, cf.  $P(\lambda)$ $G(K,\theta)$. Maximum likelihood estimation provides a single framework to allow parameter estimation for any of the expotential family distributions.
+    Parameter estimation stands at the heart of all statistical models. Random variables and their distribution allows us to explain a variables behavior based on their parameters. Once a model is specified with its parameters, and data have been collected, one is in a position to evaluate its goodness of fit, that is, how well it fits the observed data. Goodness of fit is assessed by finding parameter values of a model that best fits the data procedure called parameter estimation. The OLS linear model estimated the $\mu$ and $\sigma$ for $N( \mu ,\sigma^2)$ by minimizing $S$. \cite{Nelder} introduces a method to account estimate parameters for any expotential family distributions members. Expotential family distributions have diffent number of parameters and parameter meaning, cf.  $P(\lambda)$ $G(K,\theta)$. Maximum likelihood estimation provides a single framework to allow parameter estimation for any of the expotential family distributions.
 
     From a statistical analysis point of view the vector $y$ of observed data is a random sample from an unknown population. The goal of maximum likelihood estimation is to find the parameters of the given distribution that most likely has produced this sample. This process is discribed with a probability density function (PDF) $f()$ of observed data $y$ given a parameter $w$: $f(y|w)$. If individual observations, $y_i$’s, are statistically independent of one another, then according to the theory of probability, the PDF for the data y given the parameter vector w can be expressed as a multiplication of PDFs for individual observations.
 
-    \begin{equation} f(y|w) = f((y_1, y_2,...,y_n) | (w_1,w_2, ... w_n )) = f_1(y_1|w_1)*f_2(y_2|w_2) ... f_n(y_n|w_n) \end{equation}
+    \begin{equation} f(y|w) = f((y_1, y_2,...,y_n) | (w_1,w_2, ... w_n )) = \prod_{i=1}^{n} f_i(y_i|w_i) ) \end{equation}
 
     Given a set of parameter values, the corresponding PDF will show that some data are more probable than other data. In reality the data is already given and we are searching for the parameters of the distribution that mostlikely produced the data. We thus inverse our function $f(y|w)$ to $L(w|y)$ to produce the likelihood of y given the parameters w. The principle of maximum likelihood estimation, originally developed by R.A. Fisher in the 1920s, states that the desired probability distribution is the one that makes the observed data ‘‘most likely,’’ which means that one must seek the value of the parameter vector that maximizes the likelihood function $L(w|y)$: The resulting parameter vector, which is sought by searching the multi-dimensional parameter space, is called the MLE estimate.
 
@@ -189,8 +212,39 @@
     In practice, however, it is usually not possible to obtain an analytic form solution for the MLE estimate, especially when the model involves many parameters and its PDF is highly non-linear. In such situations, the MLE estimate must be sought numerically using nonlinear optimization algorithms. The basic idea of nonlinear optimization is to quickly find optimal parametersthat maximize the log-likelihood. This is done by searching much smaller sub-sets of the multi-dimensional parameter space rather than exhaustively searching the whole parameter space, which becomes intractable as the number of parameters increases. The ‘‘intelligent’’ search proceeds by trial and error over the
     course of a series of iterative steps. Specifically, on eachiteration, by taking into account the results from the previous iteration, a new set of parameter values is obtained by adding small changes to the previous parameters in such a way that the new parameters are likely to lead to improved performance. Different optimization algorithms differ in how this updating routine is conducted. This process is called
 
-    \subsection{Fitting generalized linear models}
-    Penelized Iterative Reweighted Least Square estimation
+    \subsection{Fitting Generalized Linear Model}
+    Before looking at the fitting process of GLM it is important  linear models assume an error with constant variance and no covariance, the combination of the two conditions is called homoscedastic. The assumption of homoscedastic is now dropped, in GLM the error term has a varying variance and error can have covariance. This situation is called heteroscedastic. Our fitting method thus needs to account for the varying error. As we have discussed previously, we obtain MLEs by setting the score vector equal to 0 Recall that for a GLM using the canonical link function, the score vector is:
+    \begin{equation} u(\beta) = \phi ^{-1} X^T(y-\mu) \end{equation}
+
+    In the above equation $\mu$ is a function of $\eta = X \beta$. However this is not required to be a linear function, if this is not the case lack a closed-formed sulution for $\beta$. If we are given the canoical link function g we may use a Taylor series approach to obtain the following approxiamtion of the point $\widehat{\beta}$:
+    \begin{equation} \mu = \widehat{\mu} + W(X\beta - X \widehat{\beta}) \end{equation}
+    Where $\widehat{\mu} = g^{-1}(X\beta) $ when the g is defined as
+
+    \begin{equation} \frac{d}{d\eta} g^{-1}(\eta) = W(\eta) \end{equation}
+
+    Thus we can obtain the following linear approximation to the score for a given $\beta$:
+    \begin{equation} \frac{\partial l}{\partial \beta} \approx \phi^{-1} X^TW(z-X\beta) \end{equation}
+
+    where $z = X\widehat{\beta} + W^{-1} (y-\widehat{\mu})$ is known as the adjusted response. Note that this approximation is based at $\widehat{\beta}$ or, equivalently, $\widehat{\mu}$, which are treated as constants in the above expression, thereby rendering the score equation linear in $\beta$ after the approximation Again, recall that this approximation will be accurate near the fitted values $\widehat{\mu}$ but not necessarily accurate far away from them.
+    As we saw previously this gives the max likelih hood estimate:
+    \begin{equation} \widehat{\beta} ^{(m)} = (X^TWX)^{-1}X^tWz \end{equation}
+
+    Note that $W$ here plays the role of the weights in weighted least squares, and for that reason is often referred to as the weight matrix.Again, recall that for the canonical link, W is entirely determined by the mean-variance relationship, and that it plays a prominent role in the variability of $\widehat{\beta}$ as well.Note that in the above equation, we require a superscript on $\widehat{\beta} ^{(m)}$ because this sia case of unknown weights, where $W$ (and $z$) will change depending on $\widehat{\beta}$ and vice versa
+
+
+    As we saw earlier, one way to address this problem is to iterate the process of reweight–estimate–reweight–estimate–. . . until convergence; this iteratively reweighted least squares (IRLS) algorithm is how generalized linear models are fit:
+
+    \begin{enumerate}
+        \item Choose an intial value $\widehat{\beta} ^{(0)}$
+        \item For m = 0,1,2,...
+    \begin{enumerate}
+     \item Calculate $z$ and $W$ based on $\widehat{\beta} ^{(m)}$
+    \item Solev for $\widehat{\beta} ^{(m+1)}$
+    \item Check to see whether $\widehat{\beta} ^{(0)}$ has converged: if yes then stop
+  \end{enumerate}
+\end{enumerate}
+
+This concept it generalized with Newton-Raphson
 
     \section{Generalized Additive Models}
     \subsection{Introduction to Generalized Additive Models}
